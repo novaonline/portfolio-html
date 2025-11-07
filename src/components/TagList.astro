@@ -1,0 +1,23 @@
+---
+import TagPill from "./TagPill.astro";
+import { allowedSkills } from "../lib/resume-static";
+
+const { tags = [] } = Astro.props as { tags?: string[] };
+const dedup = Array.from(
+  new Set(
+    (tags ?? [])
+      .map((tag) => (typeof tag === "string" ? tag.trim() : ""))
+      .filter((tag): tag is string => Boolean(tag))
+  )
+);
+---
+{dedup.length > 0 && (
+  <div class="flex flex-wrap gap-2">
+    {dedup.map((tag) => (
+      <TagPill
+        name={tag}
+        kind={allowedSkills.includes(tag) ? "skill" : "topic"}
+      />
+    ))}
+  </div>
+)}

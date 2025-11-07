@@ -29,6 +29,16 @@ pre {
   max-width: 75ch;
 }
 
+:root [data-tag-filter] button.tag-filter__btn {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease;
+}
+[data-tag-filter] button.tag-filter__btn[aria-pressed="true"] {
+  @apply border-slate-900 bg-slate-900 text-white;
+}
+.dark [data-tag-filter] button.tag-filter__btn[aria-pressed="true"] {
+  @apply border-slate-100 bg-slate-100 text-slate-900;
+}
+
 /* Print-friendly */
 @media print {
   html { background: #fff; }

@@ -1,0 +1,13 @@
+---
+title: "Backpressure Guards that Tamed Consumer Lag"
+date: 2025-11-05
+description: "Token bucket on producers + lag SLOs in Grafana"
+tags:
+  - "Message Brokers"
+  - Kafka
+  - Backpressure
+  - "Observability Stacks"
+siteOnly: true
+rss: true
+---
+We throttled write-heavy clients with a token bucket that aligned to topic-level quotas, then surfaced the resulting lag SLOs alongside DLQ spikes in Grafana. Engineers finally saw the cost of ignoring backpressure, so retries backed off before partitions melted down.

@@ -1,0 +1,44 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import TagList from "../../components/TagList.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("experiences");
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props as { post: CollectionEntry<"experiences"> };
+const { Content } = await post.render();
+---
+<Base title={`${post.data.title} — Experiences`} description={post.data.description}>
+  {post.data.noindex && (
+    <meta slot="head" name="robots" content="noindex, nofollow" />
+  )}
+  <article class="prose prose-slate max-w-none dark:prose-invert">
+    <header>
+      <h1>{post.data.title}</h1>
+      <p class="mt-[-0.5rem] text-sm text-slate-500">
+        {post.data.date.toISOString().slice(0, 10)}
+      </p>
+      <div class="mt-2">
+        <TagList tags={post.data.tags ?? []} />
+      </div>
+      {post.data.resumeId && (
+        <p class="mt-2 text-xs text-slate-500">
+          Related role: {post.data.resumeId}
+        </p>
+      )}
+      {post.data.projectId && (
+        <p class="mt-1 text-xs text-slate-500">
+          Related project: {post.data.projectId}
+        </p>
+      )}
+    </header>
+
+    <Content />
+  </article>
+</Base>

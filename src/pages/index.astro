@@ -1,21 +1,21 @@
 ---
 import BaseLayout from "../layouts/Base.astro";
 
-const heroTitle = "Building data-informed systems with empathy and rigor.";
+const heroTitle = "I like building systems.";
 const heroSubtitle =
-  "Manny crafts event-driven platforms, streaming governance, and humane developer experiences to turn raw telemetry into clarity.";
+  "I like to think I build systems to reconnect with the world, though mostly I just reconnect with building systems.";
 ---
 
 <BaseLayout
-  title="Manny | Portfolio"
+  title="Emmanuel Quagraine | Portfolio"
   description="Event-driven architect and data platform engineer focused on unlocking clarity from complex telemetry."
-  siteName="Manny"
+  siteName="Emmanuel Quagraine"
 >
   <section class="mb-16 space-y-4 text-slate-700 dark:text-slate-300">
     <p
       class="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400"
     >
-      Architecture / Data / Developer Experience
+      Architect / Data / Developer
     </p>
     <h1
       class="text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl"
@@ -42,15 +42,8 @@ const heroSubtitle =
       Hi, I'm Emmanuel on paper but Manny in person. I'm a developer at heart
       who started as a full-stack C# developer and discovered a passion for
       making sense of data. Over the years, I've gone from building web apps to
-      architecting event-driven systems that process billions of records each
-      month, to wrangling and shaping data into meaningful insights.
-    </p>
-    <p>
-      These days, I'm unlocking data at KORE Wireless to optimize costs and
-      increase connectivity transparency. Here, I get to combine my love for
-      software, big data, and clean architecture. I'll admit that while I enjoy
-      the problem-solving journey, I get even more satisfaction from seeing the
-      real-world value it creates.
+      architecting event-driven systems, to wrangling and shaping data into
+      meaningful insights.
     </p>
     <p>
       When I'm not architecting systems, you'll likely find me tinkering in my
@@ -68,7 +61,7 @@ const heroSubtitle =
       id="arch-heading"
       class="text-2xl font-semibold text-slate-900 dark:text-slate-100"
     >
-      Signature Architecture (Green-field Ideal)
+      My Architecture Bias (Green-field Ideal)
     </h2>
     <p>
       This section is inspired by a paraphrased section in
@@ -79,24 +72,27 @@ const heroSubtitle =
         The Software Architect Elevator: Redefining the Architect's Role in the
         Digital Enterprise by Gregor Hohpe
       </a>
-      , A software Architect may have unconscious preferences or tendencies that
-      impact their decision-making. Being aware of those biases can help you avoid
-      blindly applying patterns that don't fit.
+      .
     </p>
+    <blockquote
+      class="border-l-4 border-slate-300 pl-4 italic text-slate-600 dark:border-slate-600 dark:text-slate-300"
+    >
+      A software architect may have unconscious preferences or tendencies that
+      impact their decision-making. Being aware of those biases can help you
+      avoid blindly applying patterns that don't fit.
+    </blockquote>
     <p>
       Being transparent about my tendencies can help the people I work with
-      understand quickly where I may have blind spots. It's important for me to
-      stress that I am fully aware that every organization and project has its
-      own unique constraints, and adopting my ideal architecture is almost never
-      possible... but I still like to dream.
+      understand quickly where I may have blind spots. It's also important for
+      me to stress that I am fully aware that every organization and project has
+      its own unique constraints, and adopting my ideal architecture is almost
+      never possible... but I still like to dream.
     </p>
     <p>
-      My ideal architecture for a new green-field project is event-driven with a
-      very strong streaming governance model and HTTP-based APIs with
-      self-generating open API specs. I've read Client → Identity Server → HTTP
-      API → Synchronous service with its own database; events flow to an
-      asynchronous worker via an event bus; a dedicated integration service
-      connects to a third-party.
+      My ideal architecture is event-driven with a very strong streaming
+      governance model and HTTP-based APIs with self-generating open API specs.
+      There is a clear decoupling between the product systems, analaytical
+      systems, and business systems.
     </p>
 
     <figure class="my-6">
@@ -196,5 +192,32 @@ const heroSubtitle =
         runtime SLOs, and cost limits.
       </figcaption>
     </figure>
+    <p>
+      The <b>product systems</b> have a goal to make both the builders and operators
+      using the platform happy. Then a feature is built in the user interface, by
+      default there is an equivalent public API for the builders. The events they
+      emit are all possible verbs you can think of against entities. This makes the
+      end users, analytical systems, and business systems happy.
+    </p>
+    <p>
+      The <b>analytical systems</b> have a goal of combining and producing observations
+      for the end users and internal stakeholders. They consume events and capture
+      anything else they need via the product system's API gateways. These observations
+      are also emitted as events for other systems. Its important to note that it
+      only makes sense for these systems to provide historical, merged or aggregated
+      forms of data they consumed. One of the negative side effects of this architecture
+      is the possibility of data staleness or inconsistency. Therefore an important
+      part of their monitoring is building data quality checks, uniqueness checks,
+      monitoring pipelines, and periodic checksum inspired validations.
+    </p>
+    <p>
+      The <b>business systems</b> have a goal to make money. They focus on collecting
+      the money, and finding more ways to keep that money coming in. Often, thats
+      through upselling and cross-selling, marketing, and optimizing margins. From
+      my experience, these systems are often third party systems CRMs and ERP systems.
+      They integrate with the product systems via APIs and events and provide feedback
+      loops. They also use the analytical systems to strategize and make data-driven
+      decisions.
+    </p>
   </section>
 </BaseLayout>

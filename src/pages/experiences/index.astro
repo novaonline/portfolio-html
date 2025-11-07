@@ -1,0 +1,86 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import TagList from "../../components/TagList.astro";
+import TagFilter from "../../components/TagFilter.astro";
+
+const posts = (
+  await getCollection("experiences", (entry) => !entry.data.unlisted)
+).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const normalize = (value: string) => value.trim();
+const allTags = Array.from(
+  new Set(
+    posts
+      .flatMap((post) => post.data.tags ?? [])
+      .filter(
+        (tag): tag is string =>
+          typeof tag === "string" && tag.trim().length > 0,
+      )
+      .map(normalize),
+  ),
+).sort((a, b) => a.localeCompare(b));
+
+const encodeTags = (tags: string[] = []) =>
+  tags
+    .filter((tag) => typeof tag === "string" && tag.trim().length > 0)
+    .map((tag) => encodeURIComponent(tag.trim()))
+    .join(",");
+---
+
+<Base
+  title="Experiences — Manny"
+  description="Short, readable how/why notes on architecture, data, and ops."
+>
+  <section class="prose prose-slate dark:prose-invert max-w-none">
+    <h1>Experiences</h1>
+    <p>
+      This is my public lab notebook—a place to share the experiences that
+      rarely fit on a resume by unpacking why an architectural, data, or ops
+      decision happened and what it taught me, so the wider community can learn
+      alongside me. When you see a green “skill” tag it's backed by my resume's
+      canonical skill list; gray “topic” tags highlight ad-hoc themes that came
+      up in the story.
+    </p>
+  </section>
+
+  {
+    posts.length > 0 ? (
+      <>
+        <div class="mt-6">
+          <TagFilter allTags={allTags} />
+        </div>
+
+        <ul id="postlist" data-experiences-list class="mt-6 space-y-4">
+          {posts.map((post) => (
+            <li
+              class="rounded-xl border border-slate-200 p-4 transition hover:border-slate-400 dark:border-slate-800 dark:hover:border-slate-600"
+              data-tags={encodeTags(post.data.tags ?? [])}
+            >
+              <a class="block space-y-2" href={`/experiences/${post.slug}/`}>
+                <div>
+                  <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">
+                    {post.data.title}
+                  </h2>
+                  {post.data.description && (
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                      {post.data.description}
+                    </p>
+                  )}
+                  <div class="text-xs text-slate-400">
+                    {post.data.date.toISOString().slice(0, 10)}
+                  </div>
+                </div>
+                <TagList tags={post.data.tags ?? []} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    ) : (
+      <p class="mt-6 text-slate-500 dark:text-slate-400">
+        No experiences published yet. Check back soon!
+      </p>
+    )
+  }
+</Base>

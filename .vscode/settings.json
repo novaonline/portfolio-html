@@ -1,0 +1,30 @@
+{
+  "editor.formatOnSave": true,
+  "editor.inlineSuggest.enabled": true,
+
+  // Formatters per language
+  "[astro]": { "editor.defaultFormatter": "astro-build.astro-vscode" },
+  "[markdown]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[mdx]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[javascript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  // Tailwind IntelliSense inside Astro/MDX
+  "tailwindCSS.emmetCompletions": true,
+  "tailwindCSS.includeLanguages": {
+    "astro": "html",
+    "mdx": "markdown"
+  },
+  "emmet.includeLanguages": { "astro": "html" },
+
+  // Keep class name suggestions smart
+  "css.validate": false,
+  "editor.quickSuggestions": { "strings": true },
+
+  // Copilot polish
+  "github.copilot.enable": {
+    "*": true,
+    "markdown": false,
+    "plaintext": false
+  }
+}

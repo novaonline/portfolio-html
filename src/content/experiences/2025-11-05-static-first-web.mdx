@@ -1,0 +1,12 @@
+---
+title: "ADR: Static-first Web with Islands"
+date: 2025-11-05
+description: "HTML first, hydrate only where it matters"
+tags:
+  - "Web UI Frameworks"
+  - "Architectural Concepts"
+  - Astro
+siteOnly: true
+rss: true
+---
+We locked the platform to static HTML + incremental hydration after perf traces showed 70% of visitors bounced before the hero finished animating. Shipping Astro with scoped islands kept the marketing team in MDX, gave us clean SEO, and reduced TTFB variance without strangling interactive widgets.

@@ -1,0 +1,107 @@
+---
+import { allowedSkills } from "../lib/resume-static";
+
+const { allTags = [] } = Astro.props as { allTags?: string[] };
+const unique = Array.from(
+  new Set(
+    (allTags ?? [])
+      .map((tag) => (typeof tag === "string" ? tag.trim() : ""))
+      .filter((tag): tag is string => Boolean(tag))
+  )
+);
+const skills = unique.filter((tag) => allowedSkills.includes(tag));
+const topics = unique.filter((tag) => !allowedSkills.includes(tag));
+const encode = (tag: string) => encodeURIComponent(tag);
+const buttonClass =
+  "tag-filter__btn rounded-full border border-slate-300 px-3 py-1 text-sm text-slate-700 transition hover:border-slate-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500";
+---
+{unique.length > 0 && (
+  <div class="not-prose" data-tag-filter>
+    <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">Skills</div>
+    <div class="mb-4 flex flex-wrap gap-2">
+      <button
+        data-tag=""
+        class={buttonClass}
+        aria-pressed="true"
+        type="button"
+      >
+        All
+      </button>
+      {skills.map((tag) => (
+        <button
+          data-tag={encode(tag)}
+          class={buttonClass}
+          aria-pressed="false"
+          type="button"
+        >
+          {tag}
+        </button>
+      ))}
+    </div>
+    {topics.length > 0 && (
+      <div>
+        <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">Topics</div>
+        <div class="flex flex-wrap gap-2">
+          {topics.map((tag) => (
+            <button
+              data-tag={encode(tag)}
+              class={buttonClass}
+              aria-pressed="false"
+              type="button"
+            >
+              {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+    <script is:inline>
+      // @ts-nocheck
+      const scriptEl = document.currentScript;
+      const init = () => {
+        const root = scriptEl?.parentElement;
+        const list = document.querySelector('[data-experiences-list]');
+        if (!root || !list) {
+          if (!root) {
+            console.warn('TagFilter root element not found.');
+          }
+          return;
+        }
+
+        const buttons = Array.from(root.querySelectorAll('button[data-tag]'));
+        let active = '';
+
+        const apply = () => {
+          const items = Array.from(list.querySelectorAll('[data-tags]'));
+          items.forEach((item) => {
+            const tags = (item.getAttribute('data-tags') || '')
+              .split(',')
+              .filter(Boolean);
+            const visible = !active || tags.includes(active);
+            item.classList.toggle('hidden', !visible);
+          });
+
+          buttons.forEach((btn) => {
+            const pressed = (btn.dataset.tag || '') === active;
+            btn.setAttribute('aria-pressed', String(pressed));
+          });
+        };
+
+        buttons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            active = btn.dataset.tag || '';
+            apply();
+          });
+        });
+
+        apply();
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+      } else {
+        init();
+      }
+    </script>
+  </div>
+)}
