@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light dark; }
+
+/* Fira Code (self-hosted). Leave TODO if font file not present. */
+@font-face {
+  font-family: "Fira Code VF";
+  src: url("/fonts/FiraCode-VF.woff2") format("woff2-variations");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+:root { --font-mono: "Fira Code VF", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+code,
+pre {
+  font-family: var(--font-mono);
+  font-variant-ligatures: contextual common-ligatures;
+  font-feature-settings: "calt", "liga";
+}
+
+/* SVG utility */
+.svg-soft { display: block; max-width: 100%; height: auto; }
+
+/* Prose readability (works with or without typography plugin) */
+.reading {
+  line-height: 1.7;
+  max-width: 75ch;
+}
+
+/* Print-friendly */
+@media print {
+  html { background: #fff; }
+  body { color: #000 !important; }
+  nav,
+  .no-print { display: none !important; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: .9em; }
+  * { box-shadow: none !important; text-shadow: none !important; }
+}

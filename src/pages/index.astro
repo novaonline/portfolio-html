@@ -1,0 +1,200 @@
+---
+import BaseLayout from "../layouts/Base.astro";
+
+const heroTitle = "Building data-informed systems with empathy and rigor.";
+const heroSubtitle =
+  "Manny crafts event-driven platforms, streaming governance, and humane developer experiences to turn raw telemetry into clarity.";
+---
+
+<BaseLayout
+  title="Manny | Portfolio"
+  description="Event-driven architect and data platform engineer focused on unlocking clarity from complex telemetry."
+  siteName="Manny"
+>
+  <section class="mb-16 space-y-4 text-slate-700 dark:text-slate-300">
+    <p
+      class="text-sm uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400"
+    >
+      Architecture / Data / Developer Experience
+    </p>
+    <h1
+      class="text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl"
+    >
+      {heroTitle}
+    </h1>
+    <p class="max-w-2xl text-lg text-slate-600 dark:text-slate-300">
+      {heroSubtitle}
+    </p>
+  </section>
+
+  <section
+    id="about"
+    aria-labelledby="about-heading"
+    class="reading space-y-4 text-slate-700 dark:text-slate-300"
+  >
+    <h2
+      id="about-heading"
+      class="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+    >
+      About
+    </h2>
+    <p>
+      Hi, I'm Emmanuel on paper but Manny in person. I'm a developer at heart
+      who started as a full-stack C# developer and discovered a passion for
+      making sense of data. Over the years, I've gone from building web apps to
+      architecting event-driven systems that process billions of records each
+      month, to wrangling and shaping data into meaningful insights.
+    </p>
+    <p>
+      These days, I'm unlocking data at KORE Wireless to optimize costs and
+      increase connectivity transparency. Here, I get to combine my love for
+      software, big data, and clean architecture. I'll admit that while I enjoy
+      the problem-solving journey, I get even more satisfaction from seeing the
+      real-world value it creates.
+    </p>
+    <p>
+      When I'm not architecting systems, you'll likely find me tinkering in my
+      homelab or diving into creative projects that blend technology with
+      everyday life.
+    </p>
+  </section>
+
+  <section
+    id="architecture"
+    aria-labelledby="arch-heading"
+    class="mt-12 reading space-y-4 text-slate-700 dark:text-slate-300"
+  >
+    <h2
+      id="arch-heading"
+      class="text-2xl font-semibold text-slate-900 dark:text-slate-100"
+    >
+      Signature Architecture (Green-field Ideal)
+    </h2>
+    <p>
+      This section is inspired by a paraphrased section in
+      <a
+        class="underline decoration-dashed underline-offset-2 hover:decoration-solid"
+        href="https://a.co/d/fX3LOY6"
+      >
+        The Software Architect Elevator: Redefining the Architect's Role in the
+        Digital Enterprise by Gregor Hohpe
+      </a>
+      , A software Architect may have unconscious preferences or tendencies that
+      impact their decision-making. Being aware of those biases can help you avoid
+      blindly applying patterns that don't fit.
+    </p>
+    <p>
+      Being transparent about my tendencies can help the people I work with
+      understand quickly where I may have blind spots. It's important for me to
+      stress that I am fully aware that every organization and project has its
+      own unique constraints, and adopting my ideal architecture is almost never
+      possible... but I still like to dream.
+    </p>
+    <p>
+      My ideal architecture for a new green-field project is event-driven with a
+      very strong streaming governance model and HTTP-based APIs with
+      self-generating open API specs. I've read Client → Identity Server → HTTP
+      API → Synchronous service with its own database; events flow to an
+      asynchronous worker via an event bus; a dedicated integration service
+      connects to a third-party.
+    </p>
+
+    <figure class="my-6">
+      <svg
+        role="img"
+        aria-labelledby="arch-title arch-desc"
+        viewBox="0 0 820 320"
+        class="h-auto w-full svg-soft"
+      >
+        <title id="arch-title">Ideal green-field architecture diagram</title>
+        <desc id="arch-desc">
+          Client authenticates with identity server and calls HTTP API. API
+          calls a microservice with its own database. Events are published to an
+          event bus consumed by an async worker. An integration service connects
+          to a third party.
+        </desc>
+        <!-- Boxes -->
+        <g stroke="currentColor" fill="none" stroke-width="2">
+          <rect x="20" y="40" width="140" height="60" rx="8"></rect>
+          <rect x="200" y="20" width="160" height="100" rx="8"></rect>
+          <rect x="400" y="20" width="160" height="100" rx="8"></rect>
+          <rect x="400" y="160" width="160" height="100" rx="8"></rect>
+          <rect x="600" y="20" width="180" height="100" rx="8"></rect>
+          <rect x="600" y="160" width="180" height="100" rx="8"></rect>
+        </g>
+        <!-- Labels -->
+        <g fill="currentColor">
+          <text x="90" y="75" text-anchor="middle">Client</text>
+          <text x="280" y="65" text-anchor="middle">Identity Server</text>
+          <text x="480" y="55" text-anchor="middle">HTTP API</text>
+          <text x="480" y="195" text-anchor="middle"
+            >Synchronous Microservice</text
+          >
+          <text x="480" y="215" text-anchor="middle">Own Database</text>
+          <text x="690" y="55" text-anchor="middle">Event Bus</text>
+          <text x="690" y="195" text-anchor="middle">Async Worker</text>
+        </g>
+        <!-- DB Icon -->
+        <g stroke="currentColor" fill="none" stroke-width="2">
+          <ellipse cx="480" cy="250" rx="40" ry="10"></ellipse>
+          <path d="M440 250v20c0 6 18 10 40 10s40-4 40-10v-20"></path>
+          <ellipse cx="480" cy="270" rx="40" ry="10"></ellipse>
+        </g>
+        <!-- Flows -->
+        <g
+          stroke="currentColor"
+          fill="none"
+          stroke-width="2"
+          marker-end="url(#arrow)"
+        >
+          <path d="M160 70H200"></path>
+          <path d="M360 70H400"></path>
+          <path d="M480 120v40"></path>
+          <path d="M560 70H600"></path>
+          <path d="M690 120v40"></path>
+        </g>
+        <!-- Integration -->
+        <g>
+          <rect
+            x="200"
+            y="160"
+            width="160"
+            height="100"
+            rx="8"
+            stroke="currentColor"
+            fill="none"
+            stroke-width="2"></rect>
+          <text x="280" y="195" text-anchor="middle" fill="currentColor"
+            >Integration Service</text
+          >
+          <text x="280" y="215" text-anchor="middle" fill="currentColor"
+            >3rd-party API</text
+          >
+          <path
+            d="M360 210H400"
+            stroke="currentColor"
+            fill="none"
+            stroke-width="2"
+            marker-end="url(#arrow)"></path>
+        </g>
+        <defs>
+          <marker
+            id="arrow"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="8"
+            markerHeight="8"
+            orient="auto-start-reverse"
+          >
+            <path d="M0 0 L10 5 L0 10 z" fill="currentColor"></path>
+          </marker>
+        </defs>
+      </svg>
+      <figcaption class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        Idealized flow; real designs adapt to legacy constraints, team skills,
+        runtime SLOs, and cost limits.
+      </figcaption>
+    </figure>
+  </section>
+</BaseLayout>
