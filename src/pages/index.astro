@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/Base.astro";
 
 const heroTitle = "I like building systems.";
 const heroSubtitle =
-  "I like to think I build systems to reconnect with the world, though mostly I just reconnect with building systems.";
+  "I'd like to think I build systems to reconnect with the world; in reality, I just like making apps and data work together.";
 ---
 
 <BaseLayout
@@ -42,8 +42,8 @@ const heroSubtitle =
       Hi, I'm Emmanuel on paper but Manny in person. I'm a developer at heart
       who started as a full-stack C# developer and discovered a passion for
       making sense of data. Over the years, I've gone from building web apps to
-      architecting event-driven systems, to wrangling and shaping data into
-      meaningful insights.
+      architecting event-driven systems, to becoming a go-to for advice on data
+      pipelines and shaping telemetry into meaningful insights.
     </p>
     <p>
       When I'm not architecting systems, you'll likely find me tinkering in my
@@ -89,17 +89,18 @@ const heroSubtitle =
       never possible... but I still like to dream.
     </p>
     <p>
-      My ideal architecture is event-driven with a very strong streaming
-      governance model and HTTP-based APIs with self-generating open API specs.
-      There is a clear decoupling between the product systems, analaytical
-      systems, and business systems.
+      My ideal architecture starts with web apps as the primary front door.
+      Behind that are HTTP-based APIs with self-generating open API specs.
+      Under the hood, it's event-driven with a very strong streaming governance
+      model. There is a clear decoupling between the product systems,
+      analytical systems, and business systems.
     </p>
 
     <figure class="my-6">
       <svg
         role="img"
         aria-labelledby="arch-title arch-desc"
-        viewBox="0 0 820 320"
+        viewBox="0 0 980 320"
         class="h-auto w-full svg-soft"
       >
         <title id="arch-title">Ideal green-field architecture diagram</title>
@@ -115,20 +116,27 @@ const heroSubtitle =
           <rect x="200" y="20" width="160" height="100" rx="8"></rect>
           <rect x="400" y="20" width="160" height="100" rx="8"></rect>
           <rect x="400" y="160" width="160" height="100" rx="8"></rect>
-          <rect x="600" y="20" width="180" height="100" rx="8"></rect>
+          <!-- Event bus as a horizontal cylinder -->
+          <path
+            d="M600 40c0-11 18-20 40-20h100c22 0 40 9 40 20v60c0 11-18 20-40 20h-100c-22 0-40-9-40-20Z"
+          ></path>
           <rect x="600" y="160" width="180" height="100" rx="8"></rect>
+          <ellipse cx="900" cy="70" rx="60" ry="28"></ellipse>
+          <ellipse cx="900" cy="210" rx="60" ry="28"></ellipse>
         </g>
         <!-- Labels -->
         <g fill="currentColor">
           <text x="90" y="75" text-anchor="middle">Client</text>
           <text x="280" y="65" text-anchor="middle">Identity Server</text>
           <text x="480" y="55" text-anchor="middle">HTTP API</text>
-          <text x="480" y="195" text-anchor="middle"
-            >Synchronous Microservice</text
-          >
+          <text x="480" y="195" text-anchor="middle">Sync Service</text>
           <text x="480" y="215" text-anchor="middle">Own Database</text>
           <text x="690" y="55" text-anchor="middle">Event Bus</text>
           <text x="690" y="195" text-anchor="middle">Async Worker</text>
+          <text x="900" y="65" text-anchor="middle">Business</text>
+          <text x="900" y="85" text-anchor="middle">Systems</text>
+          <text x="900" y="205" text-anchor="middle">Analytics</text>
+          <text x="900" y="225" text-anchor="middle">System</text>
         </g>
         <!-- DB Icon -->
         <g stroke="currentColor" fill="none" stroke-width="2">
@@ -148,6 +156,9 @@ const heroSubtitle =
           <path d="M480 120v40"></path>
           <path d="M560 70H600"></path>
           <path d="M690 120v40"></path>
+          <path d="M600 210H560"></path>
+          <path d="M780 80H840"></path>
+          <path d="M780 80C820 80 820 210 840 210"></path>
         </g>
         <!-- Integration -->
         <g>
@@ -167,7 +178,7 @@ const heroSubtitle =
             >3rd-party API</text
           >
           <path
-            d="M360 210H400"
+            d="M400 210H360"
             stroke="currentColor"
             fill="none"
             stroke-width="2"
@@ -193,18 +204,23 @@ const heroSubtitle =
       </figcaption>
     </figure>
     <p>
-      The <b>product systems</b> have a goal to make both the builders and operators
-      using the platform happy. Then a feature is built in the user interface, by
-      default there is an equivalent public API for the builders. The events they
-      emit are all possible verbs you can think of against entities. This makes the
-      end users, analytical systems, and business systems happy.
+      The <b>product systems</b> have a goal to make both builders and operators
+      happy: builders are developers integrating via APIs/events (e.g., internal app
+      teams or partner engineers), while operators are field users who run the work
+      without writing software (e.g., dispatchers or technicians). When a feature is
+      built in the user interface, by default there is an equivalent public API for
+      builders. The events they emit represent the key verbs you can perform against
+      entities. This makes end users, analytical systems, and business systems
+      happy.
     </p>
     <p>
       The <b>analytical systems</b> have a goal of combining and producing observations
       for the end users and internal stakeholders. They consume events and capture
-      anything else they need via the product system's API gateways. These observations
-      are also emitted as events for other systems. Its important to note that it
-      only makes sense for these systems to provide historical, merged or aggregated
+      anything else they need via the product system's access-controlled API gateways,
+      with privacy-aware handling of sensitive data. These observations are also
+      emitted as events for other systems, typically sanitized and aggregated. It's
+      important to note that it only makes sense for these systems to provide historical,
+      merged or aggregated
       forms of data they consumed. One of the negative side effects of this architecture
       is the possibility of data staleness or inconsistency. Therefore an important
       part of their monitoring is building data quality checks, uniqueness checks,
@@ -218,6 +234,9 @@ const heroSubtitle =
       They integrate with the product systems via APIs and events and provide feedback
       loops. They also use the analytical systems to strategize and make data-driven
       decisions.
+    </p>
+    <p>
+      More of this ideal will show up in a side project I'm working on.
     </p>
   </section>
 </BaseLayout>

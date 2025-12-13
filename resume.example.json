@@ -1,0 +1,24 @@
+{
+  "basics": {
+    "name": "Your Name",
+    "label": "Your Role",
+    "summary": "Short, public-safe summary."
+  },
+  "sections": {
+    "summary": {
+      "content": "Short, public-safe summary."
+    },
+    "experience": {
+      "items": []
+    },
+    "projects": {
+      "items": []
+    },
+    "skills": {
+      "items": []
+    },
+    "profiles": {
+      "items": []
+    }
+  }
+}
