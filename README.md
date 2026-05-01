@@ -38,6 +38,18 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+## Codex Skills
+
+This repo includes shareable Codex skills under `skills/`.
+
+To install the transcript-to-experience workflow in Codex, use:
+
+```text
+Use $skill-installer to install https://github.com/novaonline/portfolio-html/tree/main/skills/experience-from-transcript
+```
+
+Restart Codex after installing new skills.
+
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).

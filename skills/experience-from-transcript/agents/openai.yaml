@@ -1,0 +1,4 @@
+interface:
+  display_name: "Experience From Transcript"
+  short_description: "Draft portfolio experiences from voice notes"
+  default_prompt: "Use $experience-from-transcript to turn this raw transcript into a hidden Astro experience draft."

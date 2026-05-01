@@ -7,6 +7,8 @@ const {
   description,
   siteName = "Emmanuel Quagraine",
 } = Astro.props;
+
+const isExperiences = Astro.url.pathname.startsWith("/experiences");
 ---
 
 <!doctype html>
@@ -46,7 +48,14 @@ const {
         >{siteName}</a
       >
       <nav class="flex items-center gap-4 text-sm">
-        <a href="/experiences/" class="hover:underline">Experiences</a>
+        <a
+          href="/experiences/"
+          class:list={[
+            "underline-offset-4 hover:underline",
+            isExperiences && "underline decoration-slate-400 dark:decoration-slate-500",
+          ]}
+          aria-current={isExperiences ? "page" : undefined}>Experiences</a
+        >
         <ThemeToggle />
       </nav>
     </header>

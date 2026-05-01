@@ -1,0 +1,35 @@
+---
+title: "Read-heavy Data Pipelines Need a Front Gate"
+date: 2026-02-05
+description: "Why I bias toward fast reads from telemetry-heavy experience"
+tags:
+  - Architecture
+  - APIs
+  - Cassandra
+  - "Telemetry data"
+  - Replayability
+unlisted: false
+noindex: false
+rss: true
+---
+I noticed how strongly I bias toward read-heavy data pipelines. That bias comes from the kind of data I have usually been around: telemetry and time series data where the value shows up after the write has already happened.
+
+For example, if a device reports an error spike, the useful part is not just storing that one event. It is being able to pull the surrounding readings, compare them with other devices, line them up with a deployment or outage window, and rebuild enough of the timeline to understand what happened.
+
+I can appreciate how a data platform like Cassandra can make you think hard about the write path, especially when replication, consistency levels, and multiple datacenters are part of keeping data current in more than one place. I just find that less interesting on its own. For the data platforms I am usually thinking about, I am more willing to tolerate a write backlog going into the data solution than slow reads, especially when reads can fan out much higher than writes.
+
+That does not apply to everything. Payments, inventory reservations, or anything that needs the backlog to stay near zero to avoid loss or inconsistency changes the tradeoff. In those cases, a write backlog is not just an inconvenience; it can become the problem.
+
+A lot of the pipelines I have been exposed to follow some version of raw data, transformed or enriched data, then aggregated data. The UI or public API usually cares about that final summarized view, and if something downstream needs to rebuild it, the replay still starts by reading a lot of history fast.
+
+If the downstream pipeline is mostly reducing or aggregating, doubling down on reads can pay off. A very flexible, well-structured read API gives downstreams a clean shortcut right from the API, so they can catch up without asking someone to do a backdoor database move like this:
+
+```sql
+INSERT INTO AnalyticsDb.dbo.DeviceRollups (device_id, bucket_start, avg_value)
+SELECT device_id, DATEADD(hour, DATEDIFF(hour, 0, event_time), 0), AVG(value)
+FROM [ProdSql].TelemetryDb.dbo.DeviceReadings
+WHERE event_time >= '2026-02-05T00:00:00'
+GROUP BY device_id, DATEADD(hour, DATEDIFF(hour, 0, event_time), 0);
+```
+
+That kind of copy might move data, but it can also skip work that normally happens when the data is served: unit normalization, tenant filtering, deduplication, late-arriving correction, device metadata enrichment, or permission checks. If replay goes through the same front gate as normal consumers, the recovery path is forced to use the same contract the rest of the pipeline depends on.

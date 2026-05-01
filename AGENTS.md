@@ -55,6 +55,7 @@ Read, at minimum:
 - If a tag ∈ `allowedSkills` → style as **skill** (resume-backed).
 - Else → style as **topic** (ad-hoc).
 - Keep filters working for both groups.
+- Keep topic tags broad and reusable so the tag filter does not grow with one-off/niche phrases. Put specific concepts in the title, description, or body instead of creating a narrow tag.
 
 ## SEO & privacy
 
@@ -70,6 +71,6 @@ Read, at minimum:
 
 ## Common tasks the agent may perform
 
-- **Add a new experience:** create MDX with front-matter above; use skill tags from `allowedSkills` and any extra topic tags as needed; link `projectId`/`resumeId` only when relevant; update RSS.
+- **Add a new experience:** create MDX with front-matter above; use skill tags from `allowedSkills` and broad reusable topic tags as needed; link `projectId`/`resumeId` only when relevant; update RSS.
 - **Add a project page:** create MDX with `id`, `title`, `summary`, `tags`, optional `links`; back-link related experiences.
 - **Wire tag styling:** ensure components render skill vs topic pills distinctly (no JS heavy framework).

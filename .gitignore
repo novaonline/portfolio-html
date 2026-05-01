@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# local raw voice transcripts
+.transcripts/
+
 # macOS-specific files
 .DS_Store
 
