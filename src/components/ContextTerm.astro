@@ -1,0 +1,71 @@
+---
+interface Props {
+  term: string;
+  note: string;
+}
+
+const { term, note } = Astro.props;
+---
+
+<span class="context-term" tabindex="0">
+  <span class="context-term__label">{term}</span>
+  <span class="context-term__note" role="tooltip">{note}</span>
+</span>
+
+<style>
+  .context-term {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+    outline: none;
+  }
+
+  .context-term__label {
+    color: inherit;
+  }
+
+  .context-term__note {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 0.55rem);
+    z-index: 20;
+    width: max-content;
+    max-width: min(18rem, calc(100vw - 2rem));
+    transform: translateX(-50%) translateY(0.25rem);
+    border: 1px solid rgb(203 213 225);
+    border-radius: 0.375rem;
+    background: rgb(248 250 252);
+    color: rgb(15 23 42);
+    padding: 0.55rem 0.65rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    box-shadow: 0 10px 24px rgb(15 23 42 / 0.14);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 140ms ease,
+      transform 140ms ease;
+  }
+
+  .context-term:hover .context-term__note,
+  .context-term:focus-visible .context-term__note {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .context-term:focus-visible {
+    border-radius: 0.2rem;
+    box-shadow: 0 0 0 3px rgb(14 165 233 / 0.28);
+  }
+
+  :global(.dark) .context-term__note {
+    border-color: rgb(51 65 85);
+    background: rgb(15 23 42);
+    color: rgb(226 232 240);
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.38);
+  }
+</style>

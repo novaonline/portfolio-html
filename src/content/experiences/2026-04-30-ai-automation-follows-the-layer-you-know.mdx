@@ -1,0 +1,23 @@
+---
+title: "AI Automation Follows the Layer You Know"
+date: 2026-04-30
+description: "Why skipping the UI depends on knowing what sits beneath it"
+tags:
+  - AI
+  - Automation
+  - Security
+  - Context
+unlisted: false
+noindex: false
+rss: true
+---
+
+The thing I keep thinking about with AI automation is that the prompt usually follows the layer the person understands. If someone only knows the UI, they are likely to describe the UI steps: click here, open this page, fill out this field.
+
+Developers tend to write automations differently because we are closer to the layer that actually performs the action. We are taught to make the procedure direct, and we can evaluate whether the work should happen through an API, a script, a queue, or some other path that skips the UI.
+
+An AI agent can absolutely be instructed to skip the UI fluff and use the API. The catch is that someone has to know to ask for that. If all you know is the UI and that UI requires 2FA, the automation problem can turn into reading emails, waiting on mobile notifications, or trying to automate a human login flow. A developer is more likely to ask what supported machine-to-machine auth exists, like service accounts, long-lived tokens, or scoped API credentials.
+
+That is the tradeoff I keep coming back to. Skipping the UI can make an automation cleaner, but it also exposes the access layer the UI was handling for you.
+
+So when I hear "can AI replace developers?" my honest answer right now is: it depends who is trying to replace you. If they know enough about how software works, they can probably build something useful with AI automation. If they only know the surface layer, they may just build a very complicated version of click-ops and call it progress.

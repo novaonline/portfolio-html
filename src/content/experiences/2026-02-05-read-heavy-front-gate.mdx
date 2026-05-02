@@ -12,11 +12,11 @@ unlisted: false
 noindex: false
 rss: true
 ---
-I noticed how strongly I bias toward read-heavy data pipelines. That bias comes from the kind of data I have usually been around: telemetry and time series data where the value shows up after the write has already happened.
+I noticed how strongly I bias toward read-heavy data pipelines. I think that bias comes from the kind of data I'm exposed to: telemetry and time series data where the value shows up in its enriched and aggregated form.
 
 For example, if a device reports an error spike, the useful part is not just storing that one event. It is being able to pull the surrounding readings, compare them with other devices, line them up with a deployment or outage window, and rebuild enough of the timeline to understand what happened.
 
-I can appreciate how a data platform like Cassandra can make you think hard about the write path, especially when replication, consistency levels, and multiple datacenters are part of keeping data current in more than one place. I just find that less interesting on its own. For the data platforms I am usually thinking about, I am more willing to tolerate a write backlog going into the data solution than slow reads, especially when reads can fan out much higher than writes.
+I can appreciate how a data solution like Cassandra can make you think hard about the write path, especially when it comes to replication and consistency levels. I just find that less interesting on its own. For a data solution, I am usually interested in how flexible it can query without a performance hit. I am more willing to tolerate a write backlog going into the data solution than slow reads, especially when reads can fan out much higher than writes.
 
 That does not apply to everything. Payments, inventory reservations, or anything that needs the backlog to stay near zero to avoid loss or inconsistency changes the tradeoff. In those cases, a write backlog is not just an inconvenience; it can become the problem.
 

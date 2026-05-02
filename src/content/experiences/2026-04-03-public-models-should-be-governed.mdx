@@ -1,0 +1,25 @@
+---
+title: "What If Public Models Were Governed?"
+date: 2026-04-03
+description: "A thought experiment about enterprise-governed public contracts and team-owned implementations"
+tags:
+  - Architecture
+  - Models
+  - Governance
+  - Enterprise
+unlisted: true
+noindex: true
+rss: false
+---
+
+import ContextTerm from "../../components/ContextTerm.astro";
+
+I keep coming back to a thought experiment: what would it feel like to work in an organization where the enterprise governed the outside shape and meaning of important services, while teams still owned the inside machinery? The focus would be the <ContextTerm term="public model" note="The published shape other code, teams, or services are allowed to depend on, usually through an API contract." />, not every internal object, table, or algorithm behind it.
+
+At the smaller extreme, that boundary could be the outside of a function. More realistically, it is probably a service API call. That is close to the discipline people usually want from microservices or DDD-style bounded contexts: other systems depend on the published contract, while the owning team keeps freedom inside the <ContextTerm term="private implementation" note="The code behind a public contract, where a team can refactor or make breaking internal changes as long as the public behavior stays stable." />.
+
+The part I find interesting is what happens when that public contract becomes an enterprise concern instead of only a team detail. Imagine a shared <ContextTerm term="model registry" note="A central place where business-approved public shapes, API contracts, versions, owners, and documentation live." /> where product, finance, architecture, and development can all contribute. A product owner opening a merge request against an OpenAPI-style contract does not feel that strange to me anymore, especially if the comments and documentation explain the business behavior.
+
+For example, if the enterprise concept is `SIM`, the public model might describe the business properties and actions other services can rely on: lifecycle state, customer-facing status, assigned service, assigned device, and allowed actions like provision, activate, suspend, swap, or retire. That should read like a business-facing SIM Lifecycle API, not like a team exposing an internal method such as `SIM.Provision(State s)`. The public shape can be intentionally denormalized for the enterprise to reason about, while inventory, activation, subscription, and billing teams each keep their own private models behind the contract.
+
+The tradeoff is that mistakes become shared too. If the public model is wrong, the wrongness spreads. It also fails if governance turns into one enterprise-wide internal schema or if every small helper gets published. But the version of this idea I like is narrower: the enterprise owns the outside shape and meaning, teams own the inside machinery, and validation has a clearer place to live.

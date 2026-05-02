@@ -1,0 +1,24 @@
+---
+title: "AI Clients Need Context, Signals, and Choice"
+date: 2026-03-29
+description: "Why I prefer AI clients that can switch models and work from real project context"
+tags:
+  - AI
+  - MCP
+  - Context
+  - Security
+  - Codex
+unlisted: false
+noindex: false
+rss: true
+---
+
+import ContextTerm from "../../components/ContextTerm.astro";
+
+When I think about agentic software development, I do not think the LLM choice stays fixed. I have had good experiences with Codex, and it fits my homelab use cases well. For an organization, especially at this point in AI, it feels irresponsible to lock everything into one model family. I would rather use <ContextTerm term="AI clients" note="The apps or interfaces that connect an AI model to code, project context, tools, and external services, such as Codex, Copilot, Cursor, or Claude Code." /> that let teams switch models when a different one is better for the work.
+
+The bigger point is <ContextTerm term="context engineering" note="Deliberately assembling the instructions, documents, tool outputs, project history, and other signals an AI model needs to do the task well." />. If the client can reach Jira, docs, APIs, or other internal systems, then it becomes more useful than a generic code generator. The work is not only asking a better prompt; it is making the right context available at the right time.
+
+The part I find interesting is moving past code that only responds to a <ContextTerm term="PRD" note="Product requirements document: a product planning document that explains what should be built, why it matters, and the constraints around it." />. A client that can also see production metrics, usage trends, and the growth of a <ContextTerm term="core business entity" note="The main domain object that drives load and product behavior, such as accounts, orders, devices, tenants, claims, or subscriptions." /> has a better chance of suggesting code that fits the system's real shape, not just the requirement document.
+
+Once MCP unlocks the ability to give an AI client that much context, <ContextTerm term="SKILL.md" note="A reusable instruction file for an AI client, such as Codex, that captures a workflow, project rules, and domain context for future tasks." /> and team-level scopes become the controls around it. SKILL.md gives the client durable instructions, and scopes define what each team is allowed to read or change. That combination is good context engineering, but it is also why security has to be involved.
