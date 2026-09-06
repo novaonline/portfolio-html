@@ -106,7 +106,7 @@ jobs:
           done
           exit 1
       - uses: actions/upload-artifact@v4
-        if: inputs.operation == 'preview' || inputs.operation == 'release'
+        if: ${{ !cancelled() && (inputs.operation == 'preview' || inputs.operation == 'release') && hashFiles(format('editorial/releases/{0}/receipt.json', inputs.release_id)) != '' }}
         with:
           name: portfolio-${{ inputs.release_id }}
           path: |
