@@ -70,6 +70,13 @@ try {
     { allowedCidrs: ["0.0.0.0/0"] },
     { ingress: { clusterIssuer: "test-issuer", natCidrs: ["100.64.0.2/32"] } },
     { hostNetwork: true },
+    {
+      ingress: {
+        clusterIssuer: "test-issuer",
+        natCidrs: ["fd00::/32"],
+        privateNetworkConfirmed: true,
+      },
+    },
   ]) {
     assert.throws(() => render(override));
   }

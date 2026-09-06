@@ -436,6 +436,9 @@ describe("recovery and network boundaries", () => {
     example.ingress.natCidrs = ["100.64.0.0/10"];
     writeJSON(path.join(root, "publishing.json"), example);
     expect(() => config(root)).toThrow(/exact IPv4/);
+    example.ingress.natCidrs = ["fd00::/32"];
+    writeJSON(path.join(root, "publishing.json"), example);
+    expect(() => config(root)).toThrow(/exact IPv4/);
     delete example.ingress;
     writeJSON(path.join(root, "publishing.json"), example);
     expect(() => config(root)).toThrow();

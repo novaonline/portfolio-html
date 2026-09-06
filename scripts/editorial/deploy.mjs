@@ -66,7 +66,7 @@ export function config(root) {
   if (result.runnerIp) validateCidr(`${result.runnerIp}/32`);
   for (const cidr of result.ingress.natCidrs) {
     validateCidr(cidr);
-    if (!cidr.endsWith("/32"))
+    if (isIP(cidr.split("/")[0]) !== 4 || !cidr.endsWith("/32"))
       throw new Error(
         "Ingress NAT exceptions must identify exact IPv4 gateway addresses",
       );
