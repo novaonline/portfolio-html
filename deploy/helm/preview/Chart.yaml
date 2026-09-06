@@ -1,5 +1,5 @@
 apiVersion: v2
 name: portfolio-preview
-description: Private static portfolio previews with preserved client IPs
-version: 0.1.0
+description: Private static previews through the existing NGINX Ingress and external-dns
+version: 0.2.0
 type: application

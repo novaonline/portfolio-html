@@ -12,7 +12,16 @@
   "workloadIdentityProvider": "",
   "serviceAccount": "",
   "runnerIp": "",
-  "previewHostNetwork": false,
-  "previewPort": 18080,
-  "releasePort": 18081
+  "runnerNamespace": "actions-runner-controller",
+  "ingress": {
+    "className": "nginx",
+    "clusterIssuer": "equagraine-cloudflare-issuer",
+    "controllerNamespace": "nginx-ingress",
+    "controllerLabels": {
+      "app.kubernetes.io/name": "nginx-ingress",
+      "app.kubernetes.io/instance": "nginx-ingress"
+    },
+    "natCidrs": [],
+    "privateNetworkConfirmed": false
+  }
 }

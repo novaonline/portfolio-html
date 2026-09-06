@@ -1,6 +1,15 @@
 image: ""
 hostname: ""
 allowedCidrs: []
-loadBalancerIP: ""
-hostNetwork: false
-port: 18080
+ingress:
+  className: nginx
+  clusterIssuer: ""
+  controllerNamespace: nginx-ingress
+  controllerLabels:
+    app.kubernetes.io/name: nginx-ingress
+    app.kubernetes.io/instance: nginx-ingress
+  natCidrs: []
+  privateNetworkConfirmed: false
+runnerNamespace: actions-runner-controller
+runnerLabels:
+  runner-deployment-name: portfolio-editorial

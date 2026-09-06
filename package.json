@@ -14,7 +14,8 @@
     "editorial": "node scripts/editorial/cli.mjs",
     "content:check": "node scripts/editorial/validate-public.mjs",
     "verify": "npm run fmt:check && npm run check && npm test && npm run build",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:helm": "node scripts/check-preview-chart.mjs"
   },
   "dependencies": {
     "astro": "^5.15.3"

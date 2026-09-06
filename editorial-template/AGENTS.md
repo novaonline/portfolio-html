@@ -11,5 +11,6 @@ This repository contains private sources, canonical articles, concepts, writing 
 - Draft articles/concepts here. Public content comes only from immutable approved revisions in `selection.json`. Working drafts never replace them implicitly.
 - Only the exporter copies public fields/body. Sources, paths, interviews, raw transcripts and draft revisions remain private.
 - Use the single private `publish.yml` workflow on its dedicated runner. Never enable fork/PR execution with private data or cloud permissions.
+- Actions builds and commits immutable images/Helm values; Argo CD deploys them. Use the existing shared F5 NGINX Ingress, external-dns and certificate issuer with ClusterIP backends. Do not introduce dedicated portfolio LoadBalancers or host networking. Validate the configured HTTPS hostname and preserve private access as documented in the website's publishing guide.
 - Review releases by ID and package checksum. Promote/rollback retained bytes without rebuilding. Record outcomes truthfully and resume incomplete operations before starting another.
 - The website's `npm run verify` works without AI. Commit editorial changes before building releases.

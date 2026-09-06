@@ -51,6 +51,7 @@ Read, at minimum:
 - Never commit private resume, audio, transcripts, interview answers, or unfinished revisions to this public repository. No Git history rewrite during migration.
 - Preserve selected public revisions while replacements are drafts. User approval must identify exact revisions. Promotion requires an identified reviewed release; implementation authorization alone does not approve new content.
 - Private previews require configured LAN/VPN restrictions. Publish/rollback uses retained checksummed artifacts, never rebuilds. Read receipts before retrying.
+- Kubernetes previews use the existing shared F5 NGINX Ingress, external-dns and certificate issuer, with ClusterIP backends and Argo CD reconciliation. Follow the homelab's `local-deployments` pattern; do not add dedicated portfolio LoadBalancers or host networking. Run `npm run test:helm` for chart changes.
 - Resume-backed skills remain authoritative and must not be silently expanded.
 
 ## Styling rule for tags

@@ -52,7 +52,7 @@ try {
       id,
       preview,
       siteUrl: preview
-        ? `http://${c.previewHostname}`
+        ? `https://${c.previewHostname}`
         : `https://${c.firebaseProjectId}.web.app`,
     });
   } else if (p[0] === "deploy-preview")
@@ -61,7 +61,7 @@ try {
     result = await checkPreview(
       directory,
       v.url ??
-        `http://${inspectArtifact(directory).mode === "preview" ? c.previewHostname : c.releaseHostname}/`,
+        `https://${inspectArtifact(directory).mode === "preview" ? c.previewHostname : c.releaseHostname}/`,
     );
   else if (p[0] === "status") result = inspectArtifact(directory);
   else if (["promote", "rollback"].includes(p[0])) {

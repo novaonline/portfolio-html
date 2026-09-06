@@ -39,9 +39,20 @@ export function config(root) {
     firebaseProjectId: z.string(),
     runnerLabel: z.string(),
     runnerIp: z.string().default(""),
-    previewHostNetwork: z.boolean().default(false),
-    previewPort: z.number().int().min(1024).max(65535).default(18080),
-    releasePort: z.number().int().min(1024).max(65535).default(18081),
+    runnerNamespace: z
+      .string()
+      .regex(/^[a-z0-9-]+$/)
+      .default("actions-runner-controller"),
+    ingress: z.object({
+      className: z.string().regex(/^[a-z0-9-]+$/),
+      clusterIssuer: z.string().regex(/^[a-z0-9-]+$/),
+      controllerNamespace: z.string().regex(/^[a-z0-9-]+$/),
+      controllerLabels: z
+        .record(z.string().min(1))
+        .refine((labels) => Object.keys(labels).length > 0),
+      natCidrs: z.array(z.string()).default([]),
+      privateNetworkConfirmed: z.boolean().default(false),
+    }),
     registry: z.string().regex(/^[a-z0-9.-]+(?::\d+)?$/),
     namespace: z.string().regex(/^[a-z0-9-]+$/),
     previewHostname: z.string().regex(/^[a-z0-9.-]+$/),
@@ -53,9 +64,32 @@ export function config(root) {
   const result = schema.parse(readJSON(path.join(root, "publishing.json")));
   for (const cidr of result.allowedCidrs) validateCidr(cidr);
   if (result.runnerIp) validateCidr(`${result.runnerIp}/32`);
-  if (result.previewPort === result.releasePort)
-    throw new Error("Draft and release ports must differ");
+  for (const cidr of result.ingress.natCidrs) {
+    validateCidr(cidr);
+    if (!cidr.endsWith("/32"))
+      throw new Error(
+        "Ingress NAT exceptions must identify exact IPv4 gateway addresses",
+      );
+  }
+  if (result.ingress.natCidrs.length && !result.ingress.privateNetworkConfirmed)
+    throw new Error(
+      "Source NAT hides client identity; confirm the shared ingress is LAN/VPN-only before admitting gateway addresses",
+    );
   return result;
+}
+export function previewValues(c, receipt, image) {
+  return {
+    image,
+    hostname:
+      receipt.mode === "preview" ? c.previewHostname : c.releaseHostname,
+    allowedCidrs: [
+      ...c.allowedCidrs,
+      ...(c.runnerIp ? [`${c.runnerIp}/32`] : []),
+    ],
+    ingress: c.ingress,
+    runnerNamespace: c.runnerNamespace,
+    runnerLabels: { "runner-deployment-name": "portfolio-editorial" },
+  };
 }
 export function deployPreview(root, code, directory) {
   const c = config(root),
@@ -85,17 +119,7 @@ export function deployPreview(root, code, directory) {
   );
   if (!pinned)
     throw new Error("Registry did not return an immutable image digest");
-  const values = {
-    image: pinned,
-    hostname:
-      receipt.mode === "preview" ? c.previewHostname : c.releaseHostname,
-    allowedCidrs: [
-      ...c.allowedCidrs,
-      ...(c.runnerIp ? [`${c.runnerIp}/32`] : []),
-    ],
-    hostNetwork: c.previewHostNetwork,
-    port: receipt.mode === "preview" ? c.previewPort : c.releasePort,
-  };
+  const values = previewValues(c, receipt, pinned);
   const deployDir = path.join(root, "deploy", name);
   fs.mkdirSync(deployDir, { recursive: true });
   fs.cpSync(path.join(code, "deploy/helm/preview"), deployDir, {

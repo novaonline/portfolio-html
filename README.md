@@ -9,14 +9,15 @@ npm run verify
 npm run dev
 ```
 
-| Command                       | Purpose                                               |
-| ----------------------------- | ----------------------------------------------------- |
-| `npm run verify`              | Format, Astro types, tests and production build       |
-| `npm run test:browser`        | Mobile/desktop navigation, tags, theme and footnotes  |
-| `npm run fmt`                 | Format code and documentation                         |
-| `npm run editorial -- status` | Resume the private editorial workflow                 |
-| `npm run build`               | Validate selected public content and generate `dist/` |
-| `npm run preview`             | Serve the generated build locally                     |
+| Command                       | Purpose                                                 |
+| ----------------------------- | ------------------------------------------------------- |
+| `npm run verify`              | Format, Astro types, tests and production build         |
+| `npm run test:browser`        | Mobile/desktop navigation, tags, theme and footnotes    |
+| `npm run test:helm`           | Render and validate preview routing/access (Helm 4.2.2) |
+| `npm run fmt`                 | Format code and documentation                           |
+| `npm run editorial -- status` | Resume the private editorial workflow                   |
+| `npm run build`               | Validate selected public content and generate `dist/`   |
+| `npm run preview`             | Serve the generated build locally                       |
 
 [Editorial workflow](docs/editorial.md) documents the ontology, import, writing profile and review commands. [Publishing](docs/publishing.md) covers Kubernetes previews, exact artifact promotion, rollback, bootstrap and operational checks. These commands work without an AI assistant. [AGENTS.md](AGENTS.md) identifies authoritative files for agents; `.agents/skills/` exposes the three conversational workflows.
 

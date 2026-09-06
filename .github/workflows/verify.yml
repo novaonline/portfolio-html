@@ -16,5 +16,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run verify
+      - uses: azure/setup-helm@v4
+        with:
+          version: v4.2.2
+      - run: npm run test:helm
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser

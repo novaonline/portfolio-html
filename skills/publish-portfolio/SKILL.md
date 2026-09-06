@@ -5,7 +5,9 @@ description: Prepare private portfolio previews and identified releases, inspect
 
 Read `docs/publishing.md`, private `publishing.json`, `selection.json`, `state.json`, and any active promotion record. Use the scripts or the single private GitHub workflow; never reproduce deployment logic ad hoc.
 
-Default to private preview while editing. It includes article/concept drafts and excludes sources, profile interviews and local metadata. Access requires explicit LAN/VPN CIDRs with client IP preservation. Noindex alone is not access control.
+Default to private preview while editing. It includes article/concept drafts and excludes sources, profile interviews and local metadata. Use the existing shared F5 NGINX Ingress, external-dns and certificate issuer with a ClusterIP backend; Argo CD reconciles the committed chart. Do not introduce a dedicated portfolio LoadBalancer or host networking.
+
+Access requires explicit LAN/VPN CIDRs and backend isolation. Read the source NAT guidance in `docs/publishing.md` before admitting gateway addresses; they require a confirmed private upstream network boundary. Noindex alone is not access control. Validate the actual HTTPS hostname, certificate and served artifact after deployment.
 
 Approval identifies the exact document SHA-256. Mark the reviewed document ready, snapshot it, present that revision, and record approval only when the user's instruction covers it. Preserve unchanged selections while drafting replacements.
 

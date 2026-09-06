@@ -28,7 +28,7 @@ const resources = [
     kind: "RunnerDeployment",
     metadata: {
       name: "portfolio-editorial",
-      namespace: "actions-runner-controller",
+      namespace: c.runnerNamespace,
     },
     spec: {
       replicas: 1,

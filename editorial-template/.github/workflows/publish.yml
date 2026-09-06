@@ -79,7 +79,7 @@ jobs:
           import {config} from './scripts/editorial/deploy.mjs';
           const c=config('../editorial');
           if (c.editorialRepository !== process.env.GITHUB_REPOSITORY) throw new Error('Wrong editorial repository');
-          for (const [key,value] of Object.entries({provider:c.workloadIdentityProvider,account:c.serviceAccount,preview_url:`http://${process.env.OPERATION === "preview" ? "portfolio-draft" : "portfolio-release"}.${c.namespace}.svc.cluster.local/`})) {
+          for (const [key,value] of Object.entries({provider:c.workloadIdentityProvider,account:c.serviceAccount,preview_url:`https://${process.env.OPERATION === "preview" ? c.previewHostname : c.releaseHostname}/`})) {
             if (/[\r\n]/.test(value)) throw new Error('Invalid configuration');
             fs.appendFileSync(process.env.GITHUB_OUTPUT,`${key}=${value}\n`);
           }

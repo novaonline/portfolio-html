@@ -35,7 +35,11 @@ import {
   promote,
   prepareRelease,
 } from "../scripts/editorial/releases.mjs";
-import { validateCidr } from "../scripts/editorial/deploy.mjs";
+import {
+  validateCidr,
+  config,
+  previewValues,
+} from "../scripts/editorial/deploy.mjs";
 import { transcribe } from "../scripts/editorial/transcribe.mjs";
 
 const temps = [];
@@ -401,6 +405,41 @@ describe("audio retranscription", () => {
 });
 
 describe("recovery and network boundaries", () => {
+  it("requires explicit ingress configuration and confirmation before trusting NAT gateways", () => {
+    const root = temp();
+    const example = JSON.parse(
+      fs.readFileSync(
+        new URL(
+          "../editorial-template/publishing.example.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    example.allowedCidrs = ["192.168.86.0/24"];
+    writeJSON(path.join(root, "publishing.json"), example);
+    const c = config(root);
+    const values = previewValues(
+      c,
+      { mode: "preview" },
+      "registry.example/site@sha256:" + "a".repeat(64),
+    );
+    expect(values.hostname).toBe(example.previewHostname);
+    expect(values.ingress.className).toBe("nginx");
+    expect(values).not.toHaveProperty("hostNetwork");
+    example.ingress.natCidrs = ["100.64.0.2/32"];
+    writeJSON(path.join(root, "publishing.json"), example);
+    expect(() => config(root)).toThrow(/confirm the shared ingress/);
+    example.ingress.privateNetworkConfirmed = true;
+    writeJSON(path.join(root, "publishing.json"), example);
+    expect(config(root).ingress.natCidrs).toEqual(["100.64.0.2/32"]);
+    example.ingress.natCidrs = ["100.64.0.0/10"];
+    writeJSON(path.join(root, "publishing.json"), example);
+    expect(() => config(root)).toThrow(/exact IPv4/);
+    delete example.ingress;
+    writeJSON(path.join(root, "publishing.json"), example);
+    expect(() => config(root)).toThrow();
+  });
   it("finishes the same profile mutation after interruption without duplicating its answer", () => {
     const root = temp();
     init(root);
