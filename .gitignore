@@ -29,3 +29,9 @@ pnpm-debug.log*
 resume.json
 
 .env.local
+
+# Separate private editorial Git repository and local release builds
+.editorial/
+.work/
+.env.*
+!.env.example

@@ -4,14 +4,17 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev --host",
-    "build": "astro build",
+    "build": "npm run content:check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
     "fmt": "prettier --write .",
     "fmt:check": "prettier --check .",
-    "lint": "eslint . --max-warnings=0",
-    "test": "vitest run"
+    "test": "vitest run",
+    "editorial": "node scripts/editorial/cli.mjs",
+    "content:check": "node scripts/editorial/validate-public.mjs",
+    "verify": "npm run fmt:check && npm run check && npm test && npm run build",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "astro": "^5.15.3"
@@ -22,9 +25,18 @@
     "@astrojs/rss": "^4.0.13",
     "@astrojs/sitemap": "^3.6.0",
     "@astrojs/tailwind": "^6.0.2",
+    "@playwright/test": "^1.63.0",
     "autoprefixer": "^10.4.21",
+    "firebase-tools": "^15.29.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
     "tailwindcss": "^3.4.18",
     "typescript": "^5.9.3",
+    "vitest": "^5.0.0",
+    "yaml": "^2.9.0",
     "zod": "^3.25.76"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

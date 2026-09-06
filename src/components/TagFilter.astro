@@ -6,8 +6,8 @@ const unique = Array.from(
   new Set(
     (allTags ?? [])
       .map((tag) => (typeof tag === "string" ? tag.trim() : ""))
-      .filter((tag): tag is string => Boolean(tag))
-  )
+      .filter((tag): tag is string => Boolean(tag)),
+  ),
 );
 const skills = unique.filter((tag) => allowedSkills.includes(tag));
 const topics = unique.filter((tag) => !allowedSkills.includes(tag));
@@ -15,93 +15,79 @@ const encode = (tag: string) => encodeURIComponent(tag);
 const buttonClass =
   "tag-filter__btn rounded-full border border-slate-300 px-3 py-1 text-sm text-slate-700 transition hover:border-slate-500 dark:border-slate-700 dark:text-slate-200 dark:hover:border-slate-500";
 ---
-{unique.length > 0 && (
-  <div class="not-prose" data-tag-filter>
-    <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">Skills</div>
-    <div class="mb-4 flex flex-wrap gap-2">
-      <button
-        data-tag=""
-        class={buttonClass}
-        aria-pressed="true"
-        type="button"
-      >
-        All
-      </button>
-      {skills.map((tag) => (
+
+{
+  unique.length > 0 && (
+    <div class="not-prose" data-tag-filter>
+      <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">
+        Skills
+      </div>
+      <div class="mb-4 flex flex-wrap gap-2">
         <button
-          data-tag={encode(tag)}
+          data-tag=""
           class={buttonClass}
-          aria-pressed="false"
+          aria-pressed="true"
           type="button"
         >
-          {tag}
+          All
         </button>
-      ))}
-    </div>
-    {topics.length > 0 && (
-      <div>
-        <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">Topics</div>
-        <div class="flex flex-wrap gap-2">
-          {topics.map((tag) => (
-            <button
-              data-tag={encode(tag)}
-              class={buttonClass}
-              aria-pressed="false"
-              type="button"
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
+        {skills.map((tag) => (
+          <button
+            data-tag={encode(tag)}
+            class={buttonClass}
+            aria-pressed="false"
+            type="button"
+          >
+            {tag}
+          </button>
+        ))}
       </div>
-    )}
-    <script is:inline>
-      // @ts-nocheck
-      const scriptEl = document.currentScript;
-      const init = () => {
-        const root = scriptEl?.parentElement;
-        const list = document.querySelector('[data-experiences-list]');
-        if (!root || !list) {
-          if (!root) {
-            console.warn('TagFilter root element not found.');
-          }
-          return;
+      {topics.length > 0 && (
+        <div>
+          <div class="mb-2 text-xs uppercase tracking-wide text-slate-500">
+            Topics
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {topics.map((tag) => (
+              <button
+                data-tag={encode(tag)}
+                class={buttonClass}
+                aria-pressed="false"
+                type="button"
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+<script>
+  for (const root of document.querySelectorAll<HTMLElement>(
+    "[data-tag-filter]",
+  )) {
+    const list = document.querySelector<HTMLElement>("[data-experiences-list]");
+    if (!list) continue;
+    const buttons = [
+      ...root.querySelectorAll<HTMLButtonElement>("button[data-tag]"),
+    ];
+    const items = [...list.querySelectorAll<HTMLElement>("[data-tags]")];
+    for (const button of buttons) {
+      button.addEventListener("click", () => {
+        const active = button.dataset.tag ?? "";
+        for (const item of items) {
+          item.classList.toggle(
+            "hidden",
+            Boolean(active) &&
+              !(item.dataset.tags ?? "").split(",").includes(active),
+          );
         }
-
-        const buttons = Array.from(root.querySelectorAll('button[data-tag]'));
-        let active = '';
-
-        const apply = () => {
-          const items = Array.from(list.querySelectorAll('[data-tags]'));
-          items.forEach((item) => {
-            const tags = (item.getAttribute('data-tags') || '')
-              .split(',')
-              .filter(Boolean);
-            const visible = !active || tags.includes(active);
-            item.classList.toggle('hidden', !visible);
-          });
-
-          buttons.forEach((btn) => {
-            const pressed = (btn.dataset.tag || '') === active;
-            btn.setAttribute('aria-pressed', String(pressed));
-          });
-        };
-
-        buttons.forEach((btn) => {
-          btn.addEventListener('click', () => {
-            active = btn.dataset.tag || '';
-            apply();
-          });
-        });
-
-        apply();
-      };
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init, { once: true });
-      } else {
-        init();
-      }
-    </script>
-  </div>
-)}
+        for (const choice of buttons)
+          choice.setAttribute("aria-pressed", String(choice === button));
+      });
+    }
+  }
+</script>

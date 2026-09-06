@@ -1,13 +1,17 @@
 ---
-title: "Read-heavy Data Pipelines Need a Front Gate"
+type: article
+title: Read-heavy Data Pipelines Need a Front Gate
+description: Why I bias toward fast reads from telemetry-heavy experience
+slug: 2026-02-05-read-heavy-front-gate
 date: 2026-02-05
-description: "Why I bias toward fast reads from telemetry-heavy experience"
 tags:
   - Architecture
   - APIs
   - Cassandra
-  - "Telemetry data"
+  - Telemetry data
   - Replayability
+status: stable
+concepts: []
 unlisted: false
 noindex: false
 rss: true

@@ -1,0 +1,46 @@
+---
+import Base from "../../layouts/Base.astro";
+import { getCollection } from "astro:content";
+import TagList from "../../components/TagList.astro";
+const concepts = (
+  await getCollection("concepts", (entry) => !entry.data.unlisted)
+).sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+
+<Base
+  title="Concepts — Manny"
+  description="Evolving explanations connected to observations and experience."
+>
+  <h1 class="text-3xl font-semibold">Concepts</h1>
+  <p class="mt-4 text-slate-600 dark:text-slate-300">
+    Ideas I’m developing over time, connected to the articles that inform them.
+  </p>
+  {
+    concepts.length ? (
+      <ul class="mt-8 space-y-4">
+        {concepts.map((concept) => (
+          <li class="rounded-xl border border-slate-200 p-4 dark:border-slate-800">
+            <a
+              href={`/concepts/${concept.slug}/`}
+              class="text-lg font-medium underline-offset-4 hover:underline"
+            >
+              {concept.data.title}
+            </a>
+            <p class="my-3 text-slate-600 dark:text-slate-300">
+              {concept.data.description}
+            </p>
+            <TagList tags={concept.data.tags} />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="mt-8 text-slate-500">
+        Concept pages are taking shape. For now, explore the{" "}
+        <a class="underline" href="/experiences/">
+          articles
+        </a>
+        .
+      </p>
+    )
+  }
+</Base>

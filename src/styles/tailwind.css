@@ -51,6 +51,19 @@ pre {
   max-width: 75ch;
 }
 
+[data-experience-body] a {
+  @apply underline underline-offset-4;
+}
+[data-experience-body] .footnotes {
+  @apply mt-10 border-t border-slate-300 pt-5 text-sm dark:border-slate-700;
+}
+[data-experience-body] .footnotes ol {
+  @apply list-decimal space-y-3 pl-5;
+}
+[data-experience-body] :target {
+  scroll-margin-top: 2rem;
+}
+
 :root [data-tag-filter] button.tag-filter__btn {
   transition:
     color 150ms ease,

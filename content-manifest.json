@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "mode": "public",
+  "documents": {
+    "src/content/experiences/2026-02-05-read-heavy-front-gate.md": "0b4188e2a0895acca03656b3b4eb598a03db2214556f4e809c703f13aebf8f51",
+    "src/content/experiences/2026-02-05-transparency-and-proofreading.md": "251de3081c39330c27c799ba7f982a72d1694aec04fcda9078a3f9916efa60ff",
+    "src/content/experiences/2026-03-29-ai-clients-need-context-signals-and-choice.md": "66e4308f7f1ad27b0437eceb75ad05c64432a3e728f6fb31e74e5f8cc4d6ecb1",
+    "src/content/experiences/2026-03-29-mcp-needs-auth-and-governance.md": "b2faae3c16ac4d55359478523d1a0d92f1d3bc4423ad0a97b87b0d0dc2c7734c",
+    "src/content/experiences/2026-04-30-ai-automation-follows-the-layer-you-know.md": "a24ae7fb04e61f86bac3ba336fc66c868629e67ef099af36ad72f8b115fc67a9"
+  }
+}

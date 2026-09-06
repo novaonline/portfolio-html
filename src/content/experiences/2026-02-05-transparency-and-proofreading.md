@@ -1,11 +1,15 @@
 ---
-title: "Transparency and Proofreading"
+type: article
+title: Transparency and Proofreading
+description: Why I try to show my thinking clearly, but check it first
+slug: 2026-02-05-transparency-and-proofreading
 date: 2026-02-05
-description: "Why I try to show my thinking clearly, but check it first"
 tags:
   - Leadership
   - Communication
   - Review
+status: stable
+concepts: []
 unlisted: false
 noindex: false
 rss: true

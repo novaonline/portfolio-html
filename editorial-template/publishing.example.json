@@ -1,0 +1,14 @@
+{
+  "editorialRepository": "novaonline/portfolio-editorial",
+  "websiteRepository": "novaonline/portfolio-html",
+  "websiteBranch": "main",
+  "firebaseProjectId": "",
+  "runnerLabel": "portfolio-editorial",
+  "registry": "registry.equagraine.ca",
+  "namespace": "portfolio-preview",
+  "previewHostname": "portfolio-preview.equagraine.ca",
+  "releaseHostname": "portfolio-release.equagraine.ca",
+  "allowedCidrs": [],
+  "workloadIdentityProvider": "",
+  "serviceAccount": ""
+}

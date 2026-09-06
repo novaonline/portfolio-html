@@ -1,17 +1,20 @@
 ---
-title: "AI Automation Follows the Layer You Know"
+type: article
+title: AI Automation Follows the Layer You Know
+description: Why skipping the UI depends on knowing what sits beneath it
+slug: 2026-04-30-ai-automation-follows-the-layer-you-know
 date: 2026-04-30
-description: "Why skipping the UI depends on knowing what sits beneath it"
 tags:
   - AI
   - Automation
   - Security
   - Context
+status: stable
+concepts: []
 unlisted: false
 noindex: false
 rss: true
 ---
-
 The thing I keep thinking about with AI automation is that the prompt usually follows the layer the person understands. If someone only knows the UI, they are likely to describe the UI steps: click here, open this page, fill out this field.
 
 Developers tend to write automations differently because we are closer to the layer that actually performs the action. We are taught to make the procedure direct, and we can evaluate whether the work should happen through an API, a script, a queue, or some other path that skips the UI.

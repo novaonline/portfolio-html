@@ -13,11 +13,20 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props as { post: CollectionEntry<"experiences"> };
 const { Content } = await post.render();
+const concepts = await getCollection("concepts", (entry) =>
+  post.data.concepts.includes(entry.slug),
+);
 ---
-<Base title={`${post.data.title} — Experiences`} description={post.data.description}>
-  {post.data.noindex && (
-    <meta slot="head" name="robots" content="noindex, nofollow" />
-  )}
+
+<Base
+  title={`${post.data.title} — Articles`}
+  description={post.data.description}
+>
+  {
+    post.data.noindex && (
+      <meta slot="head" name="robots" content="noindex, nofollow" />
+    )
+  }
   <article class="prose prose-slate max-w-3xl dark:prose-invert">
     <header class="mb-10">
       <h1>{post.data.title}</h1>
@@ -27,16 +36,20 @@ const { Content } = await post.render();
       <div class="mt-5">
         <TagList tags={post.data.tags ?? []} />
       </div>
-      {post.data.resumeId && (
-        <p class="mt-2 text-xs text-slate-500">
-          Related role: {post.data.resumeId}
-        </p>
-      )}
-      {post.data.projectId && (
-        <p class="mt-1 text-xs text-slate-500">
-          Related project: {post.data.projectId}
-        </p>
-      )}
+      {
+        post.data.resumeId && (
+          <p class="mt-2 text-xs text-slate-500">
+            Related role: {post.data.resumeId}
+          </p>
+        )
+      }
+      {
+        post.data.projectId && (
+          <p class="mt-1 text-xs text-slate-500">
+            Related project: {post.data.projectId}
+          </p>
+        )
+      }
     </header>
 
     <div
@@ -45,5 +58,24 @@ const { Content } = await post.render();
     >
       <Content />
     </div>
+    {
+      concepts.length > 0 && (
+        <aside
+          class="mt-10 border-t border-slate-300 pt-6 dark:border-slate-700"
+          aria-label="Related concepts"
+        >
+          <h2 class="text-lg font-semibold">Related concepts</h2>
+          <ul>
+            {concepts.map((concept) => (
+              <li>
+                <a class="underline" href={`/concepts/${concept.slug}/`}>
+                  {concept.data.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )
+    }
   </article>
 </Base>
