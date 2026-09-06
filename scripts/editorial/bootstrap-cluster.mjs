@@ -7,6 +7,20 @@ import { write, writeJSON, readJSON } from "./documents.mjs";
 
 const root = path.resolve(process.argv[2] ?? ".editorial");
 const c = config(root);
+// An undeployed channel is an empty Helm application, rather than an Argo path error.
+for (const channel of ["portfolio-draft", "portfolio-release"]) {
+  const chart = path.join(root, "deploy", channel, "Chart.yaml");
+  if (!fs.existsSync(chart))
+    write(
+      chart,
+      YAML.stringify({
+        apiVersion: "v2",
+        name: channel,
+        version: "0.1.0",
+        description: "Awaiting the first reviewed artifact deployment.",
+      }),
+    );
+}
 const resources = [
   { apiVersion: "v1", kind: "Namespace", metadata: { name: c.namespace } },
   {
@@ -66,39 +80,65 @@ if (!process.argv.includes("--apply")) {
 }
 const access = path.join(root, "media/access");
 fs.mkdirSync(access, { recursive: true, mode: 0o700 });
-const key = path.join(access, "argocd");
-if (!fs.existsSync(key))
-  execFileSync(
-    "ssh-keygen",
-    ["-t", "ed25519", "-N", "", "-C", "portfolio-editorial-argocd", "-f", key],
-    { stdio: "ignore" },
+function deployKey(repository, filename, title, writable = false) {
+  const key = path.join(access, filename);
+  if (!fs.existsSync(key))
+    execFileSync(
+      "ssh-keygen",
+      ["-t", "ed25519", "-N", "", "-C", title, "-f", key],
+      { stdio: "ignore" },
+    );
+  const keys = JSON.parse(
+    execFileSync("gh", ["api", `repos/${repository}/keys`], {
+      encoding: "utf8",
+    }),
   );
-const keys = JSON.parse(
-  execFileSync("gh", ["api", `repos/${c.editorialRepository}/keys`], {
-    encoding: "utf8",
-  }),
+  const publicKey = fs
+    .readFileSync(key + ".pub", "utf8")
+    .trim()
+    .split(" ")
+    .slice(0, 2)
+    .join(" ");
+  const existing = keys.find((item) => item.key === publicKey);
+  if (!existing)
+    execFileSync(
+      "gh",
+      [
+        "repo",
+        "deploy-key",
+        "add",
+        key + ".pub",
+        "--repo",
+        repository,
+        "--title",
+        title,
+        ...(writable ? ["--allow-write"] : []),
+      ],
+      { stdio: "pipe" },
+    );
+  else if (existing.read_only === writable)
+    throw new Error(
+      "Existing deploy key permissions differ from configuration",
+    );
+  return key;
+}
+const key = deployKey(
+  c.editorialRepository,
+  "argocd",
+  "portfolio-editorial-argocd",
 );
-const publicKey = fs
-  .readFileSync(key + ".pub", "utf8")
-  .trim()
-  .split(" ")
-  .slice(0, 2)
-  .join(" ");
-if (!keys.some((item) => item.key === publicKey))
-  execFileSync(
-    "gh",
-    [
-      "repo",
-      "deploy-key",
-      "add",
-      key + ".pub",
-      "--repo",
-      c.editorialRepository,
-      "--title",
-      "portfolio-editorial-argocd",
-    ],
-    { stdio: "pipe" },
-  );
+// A repository-specific SSH key avoids reusing the broad local GitHub CLI token in CI.
+const exportKey = deployKey(
+  c.websiteRepository,
+  "public-export",
+  "portfolio-editorial-public-export",
+  true,
+);
+execFileSync(
+  "gh",
+  ["secret", "set", "WEBSITE_EXPORT_SSH_KEY", "--repo", c.editorialRepository],
+  { input: fs.readFileSync(exportKey), stdio: ["pipe", "pipe", "pipe"] },
+);
 // Secret plaintext never enters terminal output or a tracked file.
 const secret = {
   apiVersion: "v1",

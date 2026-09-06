@@ -33,6 +33,7 @@ import {
   inspectArtifact,
   authorizePromotion,
   promote,
+  prepareRelease,
 } from "../scripts/editorial/releases.mjs";
 import { validateCidr } from "../scripts/editorial/deploy.mjs";
 import { transcribe } from "../scripts/editorial/transcribe.mjs";
@@ -248,13 +249,16 @@ describe("public revision selection", () => {
     expect(() => inside(root, "linked/file.md")).toThrow(/Symlink/);
   });
 });
-function releaseFixture(root) {
-  const directory = path.join(root, "releases/release-one");
-  write(path.join(directory, "site/index.html"), "<p>Reviewed</p>");
-  write(path.join(directory, "public-source/content.md"), "Approved source");
+function releaseFixture(root, id = "release-one") {
+  const directory = path.join(root, `releases/${id}`);
+  write(path.join(directory, "site/index.html"), `<p>Reviewed ${id}</p>`);
+  write(
+    path.join(directory, "public-source/content.md"),
+    `Approved ${id} source`,
+  );
   const receipt = {
     version: 1,
-    id: "release-one",
+    id,
     mode: "release",
     expiresAt: new Date(Date.now() + 86400000).toISOString(),
     artifactSha256: treeHash(path.join(directory, "site")),
@@ -456,5 +460,74 @@ describe("recovery and network boundaries", () => {
       "192.168.1.0/24/extra",
     ])
       expect(() => validateCidr(cidr)).toThrow(/LAN/);
+  });
+});
+
+describe("retained release identity", () => {
+  it("rejects reusing a release ID for different code or a different site", () => {
+    const root = temp();
+    init(root);
+    const { directory, receipt } = releaseFixture(root);
+    receipt.codeRevision = "a".repeat(40);
+    receipt.siteUrl = "https://fixture-test.web.app";
+    receipt.packageSha256 = packageHash(receipt);
+    writeJSON(path.join(directory, "receipt.json"), receipt);
+    expect(
+      prepareRelease(root, "unused", receipt.codeRevision, {
+        id: receipt.id,
+        siteUrl: receipt.siteUrl,
+      }),
+    ).toEqual(receipt);
+    expect(() =>
+      prepareRelease(root, "unused", "b".repeat(40), {
+        id: receipt.id,
+        siteUrl: receipt.siteUrl,
+      }),
+    ).toThrow(/another build/);
+    expect(() =>
+      prepareRelease(root, "unused", receipt.codeRevision, {
+        id: receipt.id,
+        siteUrl: "https://another-fixture.web.app",
+      }),
+    ).toThrow(/another build/);
+  });
+  it("restores the previous artifact and matching public source after a newer successful publication", async () => {
+    const root = temp();
+    init(root);
+    const first = releaseFixture(root),
+      second = releaseFixture(root, "release-two");
+    let liveHtml, liveSource;
+    const adapters = {
+      deploy: async (_, dir) => {
+        liveHtml = fs.readFileSync(path.join(dir, "site/index.html"), "utf8");
+        return { ok: true };
+      },
+      exportSource: async (_, dir) => {
+        liveSource = fs.readFileSync(
+          path.join(dir, "public-source/content.md"),
+          "utf8",
+        );
+        return { ok: true };
+      },
+    };
+    await promote(root, first.directory, first.options, adapters);
+    const original = { html: liveHtml, source: liveSource };
+    await promote(
+      root,
+      second.directory,
+      { ...second.options, operationId: "publish-two" },
+      adapters,
+    );
+    expect(liveHtml).not.toBe(original.html);
+    await promote(
+      root,
+      first.directory,
+      { ...first.options, operationId: "restore-one", rollback: true },
+      adapters,
+    );
+    expect({ html: liveHtml, source: liveSource }).toEqual(original);
+    expect(
+      readJSON(path.join(root, "records/live-release.json")).releaseId,
+    ).toBe("release-one");
   });
 });

@@ -79,7 +79,7 @@ jobs:
           import {config} from './scripts/editorial/deploy.mjs';
           const c=config('../editorial');
           if (c.editorialRepository !== process.env.GITHUB_REPOSITORY) throw new Error('Wrong editorial repository');
-          for (const [key,value] of Object.entries({provider:c.workloadIdentityProvider,account:c.serviceAccount})) {
+          for (const [key,value] of Object.entries({provider:c.workloadIdentityProvider,account:c.serviceAccount,preview_url:`http://${process.env.OPERATION === "preview" ? "portfolio-draft" : "portfolio-release"}.${c.namespace}.svc.cluster.local/`})) {
             if (/[\r\n]/.test(value)) throw new Error('Invalid configuration');
             fs.appendFileSync(process.env.GITHUB_OUTPUT,`${key}=${value}\n`);
           }
@@ -93,13 +93,15 @@ jobs:
         working-directory: website
         run: node scripts/editorial/publish.mjs deploy-preview --root ../editorial --code . --release-id "$RELEASE_ID"
       - name: Verify preview bytes and noindex header
+        env:
+          PREVIEW_URL: ${{ steps.config.outputs.preview_url }}
         if: inputs.operation == 'preview' || inputs.operation == 'release'
         working-directory: website
         shell: bash
         run: |
           set -euo pipefail
-          for attempt in $(seq 1 36); do
-            if node scripts/editorial/publish.mjs check-preview --root ../editorial --release-id "$RELEASE_ID"; then exit 0; fi
+          for attempt in $(seq 1 90); do
+            if node scripts/editorial/publish.mjs check-preview --root ../editorial --release-id "$RELEASE_ID" --url "$PREVIEW_URL"; then exit 0; fi
             sleep 5
           done
           exit 1
@@ -136,7 +138,7 @@ jobs:
           repository: novaonline/portfolio-html
           ref: main
           path: public-export
-          token: ${{ secrets.WEBSITE_EXPORT_TOKEN }}
+          ssh-key: ${{ secrets.WEBSITE_EXPORT_SSH_KEY }}
       - name: Promote or restore retained artifact
         if: inputs.operation == 'promote' || inputs.operation == 'rollback'
         working-directory: website

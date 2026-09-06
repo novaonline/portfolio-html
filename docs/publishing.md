@@ -7,7 +7,7 @@ The private editorial repository runs one manually dispatched `publish.yml` work
 1. Clone the private repository; locally `.editorial/` is the default. Copy `editorial-template/` files for a fresh installation. Configure `publishing.json` using its example: repository names, Firebase project ID, runner label, registry, namespace, preview hostnames, and explicit LAN/VPN CIDRs. The workflow's runner label must match configuration.
 2. Commit private articles, profiles and selections. Run `node scripts/editorial/bootstrap-cluster.mjs <root>` to inspect the generated namespace, dedicated ARC runner and Argo applications. Add `--apply` after checking configuration. This creates a read-only GitHub deploy key for Argo and stores its secret in Kubernetes; local key files stay ignored. Existing homelab ARC, Argo, MetalLB and registry are prerequisites.
 3. Sign in to Firebase and Google Cloud in the local terminal. `scripts/editorial/bootstrap-google.sh PROJECT_ID REPOSITORY_ID OWNER_ID` creates the dedicated project and Hosting IAM/OIDC configuration. Use the immutable GitHub repository/owner IDs from `gh api repos/novaonline/portfolio-editorial`. The project ID must be globally available; copy the script's provider/service-account output to `publishing.json`. No billing upgrade or custom domain is required by this workflow.
-4. Configure private-repository `WEBSITE_EXPORT_TOKEN`: a fine-grained GitHub token limited to **Contents: read/write on portfolio-html only**. Do not copy the broad local GitHub CLI token. OIDC grants only the configured private repository's `main` publishing workflow access to the dedicated Hosting service account.
+4. The cluster bootstrap also creates a **write deploy key limited to portfolio-html** and stores it as private-repository `WEBSITE_EXPORT_SSH_KEY`. Public export uses SSH with host-key verification. The broad local GitHub CLI token is used only during administrative bootstrap and is never stored in Actions. Rotate this deploy key by removing its repository key and private secret, replacing the ignored local key files, then rerunning bootstrap. OIDC grants only the configured private repository's `main` publishing workflow access to the dedicated Hosting service account.
 5. Commit configuration and workflow. The template defaults to the dedicated runner label. Changes to the public tooling require a new pinned website commit. Copy updated workflow/AGENTS/skills from the website when upgrading the editorial installation.
 
 The bootstrap script requires `gcloud`, Firebase CLI, `gh`, `kubectl`, `ssh-keygen` and authorized accounts. Site builds require Node/npm; private previews require Docker. Helm charts are reconciled by Argo. Secrets never belong in either repository.
@@ -20,7 +20,7 @@ Each preview uses a dedicated LoadBalancer service with `externalTrafficPolicy: 
 
 This homelab's Kube-OVN overlay masks addresses even on the dedicated LoadBalancer route. `previewHostNetwork: true` keeps the static server on the node network so its allowlist sees real clients; distinct unprivileged `previewPort`/`releasePort` avoid collisions. The containers still run without root, writable root filesystems or service-account credentials. Updates recreate this single replica and may briefly interrupt a private preview.
 
-The dedicated verifier is also explicitly admitted as `runnerIp/32`; no other pod subnet is allowed. Bootstrap reserves that address through Kube-OVN's `ip_pool` annotation and enables port security. Reserve an unused address when bootstrapping elsewhere. When changing an existing runner's address, first wait until no job is active, scale it to zero, wait for its pod to disappear, then apply bootstrap. Do not scale this one-address runner above one replica. These settings are deployment-specific; other clusters can retain ordinary pod networking when source-address tests pass.
+The dedicated verifier is also explicitly admitted as `runnerIp/32`; no other pod subnet is allowed. Actions compares bytes over the internal Kubernetes service DNS name. Browser review and local checks use the LAN hostname; validate both paths during bootstrap. Bootstrap reserves that address through Kube-OVN's `ip_pool` annotation and enables port security. Reserve an unused address when bootstrapping elsewhere. When changing an existing runner's address, first wait until no job is active, scale it to zero, wait for its pod to disappear, then apply bootstrap. Do not scale this one-address runner above one replica. These settings are deployment-specific; other clusters can retain ordinary pod networking when source-address tests pass.
 
 Before using real drafts, check successful access from an allowed address and denied access from a disallowed network, including a spoofed `X-Forwarded-For`. Verify no public ingress points to the service. A local success alone does not establish outside-network denial. Do not widen CIDRs to make an incorrectly routed request work.
 
@@ -57,3 +57,15 @@ GitHub serializes the entire workflow; local commands also acquire a promotion l
 Current provider references: [Firebase Hosting](https://firebase.google.com/docs/hosting/quickstart), [Google GitHub OIDC authentication](https://github.com/google-github-actions/auth), [OpenAI file transcription](https://developers.openai.com/api/docs/guides/speech-to-text).
 
 Network references: [Kube-OVN and MetalLB source addresses](https://kubeovn.github.io/docs/v1.15.x/en/advance/with-metallb/), [Kube-OVN reserved workload addresses](https://kubeovn.github.io/docs/v1.15.x/en/guide/static-ip-mac/).
+
+## Google sign-in on this workstation
+
+Google CLI 583.0.0 is staged in ignored `.editorial/media/google-cli/google-cloud-sdk/`; its archive checksum matches Google's installation documentation. From the website directory, complete these interactive commands in your own terminal (keep authorization codes out of chat):
+
+```sh
+export PATH="$PWD/.editorial/media/google-cli/google-cloud-sdk/bin:$PATH"
+gcloud auth login
+./node_modules/.bin/firebase login
+```
+
+After signing in, run the documented Google bootstrap and save the allocated project ID, provider and service account in private `publishing.json`. No Firebase project or public release has been created by the unauthenticated bootstrap.

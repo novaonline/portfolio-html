@@ -27,3 +27,5 @@ Public articles retain `/experiences/<slug>/` and `/experiences/rss.xml`; concep
 Do not edit generated content under `src/content/experiences/` or `src/content/concepts/` directly. Its manifest binds the approved bytes. Edit private canonical Markdown, review the revision, then export. MDX rendering remains available for future interactions.
 
 Dependabot proposes dependency updates. Review major framework migrations separately; do not use `npm audit fix --force` to combine them with content work. `package-lock.json` pins the build dependency graph. CI uses GitHub-hosted runners for public code; private sources and deployments use the dedicated editorial runner.
+
+[Maintenance status](docs/maintenance.md) records remaining dependency upgrade work and the distinction between automated checks and live deployment verification.

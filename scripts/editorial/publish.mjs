@@ -75,14 +75,17 @@ try {
     const publicCheckout = path.resolve(v["public-checkout"] ?? "");
     if (!v["public-checkout"])
       throw new Error("Supply the authenticated public repository checkout");
-    const expectedRemote = `https://github.com/${c.websiteRepository}`;
+    const expectedRemotes = [
+      `https://github.com/${c.websiteRepository}`,
+      `git@github.com:${c.websiteRepository}`,
+    ];
     const remote = execFileSync("git", ["remote", "get-url", "origin"], {
       cwd: publicCheckout,
       encoding: "utf8",
     })
       .trim()
       .replace(/\.git$/, "");
-    if (remote !== expectedRemote)
+    if (!expectedRemotes.includes(remote))
       throw new Error(
         "Public export checkout is not the configured website repository",
       );

@@ -71,29 +71,31 @@ test("article footnotes are keyboard accessible and have return links", async ({
   ).toBeVisible();
 });
 
-test("draft routes are excluded publicly or have concept backlinks in private preview", async ({
+test("unselected routes stay absent and private concept backlinks work", async ({
   page,
 }) => {
-  const response = await page.goto(
-    "/experiences/2026-09-06-architecture-as-workflow/",
-  );
   if (!process.env.PREVIEW_URL) {
+    const response = await page.goto("/experiences/unselected-draft-fixture/");
     expect(response.status()).toBe(404);
     return;
   }
-  expect(response.status()).toBe(200);
+  await page.goto("/concepts/");
+  const conceptLink = page.locator('main a[href^="/concepts/"]').first();
+  const conceptTitle = (await conceptLink.innerText()).trim();
+  await conceptLink.click();
+  await expect(
+    page.getByRole("heading", { name: "Supporting articles" }),
+  ).toBeVisible();
+  await page.locator('main aside a[href^="/experiences/"]').first().click();
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
     "content",
     "noindex, nofollow",
   );
   await page
     .getByRole("complementary", { name: "Related concepts" })
-    .getByRole("link")
+    .getByRole("link", { name: conceptTitle, exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Supporting articles" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("link", { name: "I See Architecture Through Workflows" }),
+    page.getByRole("heading", { name: conceptTitle, exact: true }),
   ).toBeVisible();
 });
