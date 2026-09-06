@@ -18,6 +18,10 @@ Previews serve **only static article/concept pages**. No source documents, profi
 
 Each preview uses a dedicated LoadBalancer service with `externalTrafficPolicy: Local` and `loadBalancerSourceRanges`. The static NGINX container independently permits only configured client networks and sends `X-Robots-Tag: noindex, nofollow` and `Cache-Control: no-store`. It does not trust forwarded IP headers. This avoids the shared ingress service's client-IP masking. The services use private MetalLB addresses; hostnames resolve through the homelab's external-DNS controller. Initially previews use HTTP on the trusted LAN/VPN.
 
+This homelab's Kube-OVN overlay masks addresses even on the dedicated LoadBalancer route. `previewHostNetwork: true` keeps the static server on the node network so its allowlist sees real clients; distinct unprivileged `previewPort`/`releasePort` avoid collisions. The containers still run without root, writable root filesystems or service-account credentials. Updates recreate this single replica and may briefly interrupt a private preview.
+
+The dedicated verifier is also explicitly admitted as `runnerIp/32`; no other pod subnet is allowed. Bootstrap reserves that address through Kube-OVN's `ip_pool` annotation and enables port security. Reserve an unused address when bootstrapping elsewhere. When changing an existing runner's address, first wait until no job is active, scale it to zero, wait for its pod to disappear, then apply bootstrap. Do not scale this one-address runner above one replica. These settings are deployment-specific; other clusters can retain ordinary pod networking when source-address tests pass.
+
 Before using real drafts, check successful access from an allowed address and denied access from a disallowed network, including a spoofed `X-Forwarded-For`. Verify no public ingress points to the service. A local success alone does not establish outside-network denial. Do not widen CIDRs to make an incorrectly routed request work.
 
 ## Build and review
@@ -51,3 +55,5 @@ GitHub serializes the entire workflow; local commands also acquire a promotion l
 - If a process dies leaving `.promotion-lock`, inspect `records/active-promotion.json`, Firebase and the export receipt before removing only the stale lock and resuming that operation.
 
 Current provider references: [Firebase Hosting](https://firebase.google.com/docs/hosting/quickstart), [Google GitHub OIDC authentication](https://github.com/google-github-actions/auth), [OpenAI file transcription](https://developers.openai.com/api/docs/guides/speech-to-text).
+
+Network references: [Kube-OVN and MetalLB source addresses](https://kubeovn.github.io/docs/v1.15.x/en/advance/with-metallb/), [Kube-OVN reserved workload addresses](https://kubeovn.github.io/docs/v1.15.x/en/guide/static-ip-mac/).

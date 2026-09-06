@@ -10,5 +10,9 @@
   "releaseHostname": "portfolio-release.equagraine.ca",
   "allowedCidrs": [],
   "workloadIdentityProvider": "",
-  "serviceAccount": ""
+  "serviceAccount": "",
+  "runnerIp": "",
+  "previewHostNetwork": false,
+  "previewPort": 18080,
+  "releasePort": 18081
 }

@@ -38,6 +38,10 @@ export function config(root) {
     websiteBranch: z.string().regex(/^[\w./-]+$/),
     firebaseProjectId: z.string(),
     runnerLabel: z.string(),
+    runnerIp: z.string().default(""),
+    previewHostNetwork: z.boolean().default(false),
+    previewPort: z.number().int().min(1024).max(65535).default(18080),
+    releasePort: z.number().int().min(1024).max(65535).default(18081),
     registry: z.string().regex(/^[a-z0-9.-]+(?::\d+)?$/),
     namespace: z.string().regex(/^[a-z0-9-]+$/),
     previewHostname: z.string().regex(/^[a-z0-9.-]+$/),
@@ -48,6 +52,9 @@ export function config(root) {
   });
   const result = schema.parse(readJSON(path.join(root, "publishing.json")));
   for (const cidr of result.allowedCidrs) validateCidr(cidr);
+  if (result.runnerIp) validateCidr(`${result.runnerIp}/32`);
+  if (result.previewPort === result.releasePort)
+    throw new Error("Draft and release ports must differ");
   return result;
 }
 export function deployPreview(root, code, directory) {
@@ -82,7 +89,12 @@ export function deployPreview(root, code, directory) {
     image: pinned,
     hostname:
       receipt.mode === "preview" ? c.previewHostname : c.releaseHostname,
-    allowedCidrs: c.allowedCidrs,
+    allowedCidrs: [
+      ...c.allowedCidrs,
+      ...(c.runnerIp ? [`${c.runnerIp}/32`] : []),
+    ],
+    hostNetwork: c.previewHostNetwork,
+    port: receipt.mode === "preview" ? c.previewPort : c.releasePort,
   };
   const deployDir = path.join(root, "deploy", name);
   fs.mkdirSync(deployDir, { recursive: true });

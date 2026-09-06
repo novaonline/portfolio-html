@@ -19,6 +19,14 @@ const resources = [
     spec: {
       replicas: 1,
       template: {
+        metadata: {
+          annotations: c.runnerIp
+            ? {
+                "ovn.kubernetes.io/ip_pool": c.runnerIp,
+                "ovn.kubernetes.io/port_security": "true",
+              }
+            : {},
+        },
         spec: {
           repository: c.editorialRepository,
           labels: ["self-hosted", c.runnerLabel],

@@ -2,3 +2,5 @@ image: ""
 hostname: ""
 allowedCidrs: []
 loadBalancerIP: ""
+hostNetwork: false
+port: 18080

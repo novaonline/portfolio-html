@@ -13,7 +13,7 @@ metadata:
 data:
   default.conf: |
     server {
-      listen 8080;
+      listen {{ .Values.port }};
       server_name _;
       root /usr/share/nginx/html;
       server_tokens off;
@@ -32,6 +32,7 @@ metadata:
   name: {{ .Release.Name }}
 spec:
   replicas: 1
+  strategy: { type: Recreate, rollingUpdate: null }
   selector:
     matchLabels: { app: {{ .Release.Name }} }
   template:
@@ -40,14 +41,16 @@ spec:
       annotations:
         checksum/config: {{ toJson .Values.allowedCidrs | sha256sum }}
     spec:
+      hostNetwork: {{ .Values.hostNetwork }}
+      dnsPolicy: {{ ternary "ClusterFirstWithHostNet" "ClusterFirst" .Values.hostNetwork }}
       automountServiceAccountToken: false
       securityContext: { runAsNonRoot: true, runAsUser: 101, runAsGroup: 101, fsGroup: 101 }
       containers:
         - name: site
           image: {{ required "Pin the preview image by digest" .Values.image | quote }}
-          ports: [{ containerPort: 8080 }]
-          readinessProbe: { tcpSocket: { port: 8080 } }
-          livenessProbe: { tcpSocket: { port: 8080 } }
+          ports: [{ containerPort: {{ .Values.port }} }]
+          readinessProbe: { tcpSocket: { port: {{ .Values.port }} } }
+          livenessProbe: { tcpSocket: { port: {{ .Values.port }} } }
           resources:
             requests: { cpu: 10m, memory: 24Mi }
             limits: { cpu: 200m, memory: 128Mi }
@@ -79,4 +82,4 @@ spec:
   loadBalancerSourceRanges:
     {{- toYaml .Values.allowedCidrs | nindent 4 }}
   selector: { app: {{ .Release.Name }} }
-  ports: [{ port: 80, targetPort: 8080 }]
+  ports: [{ port: 80, targetPort: {{ .Values.port }} }]
