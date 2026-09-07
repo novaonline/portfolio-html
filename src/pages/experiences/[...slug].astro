@@ -1,4 +1,5 @@
 ---
+import ContextNotes from "../../components/ContextNotes.astro";
 import Base from "../../layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import TagList from "../../components/TagList.astro";
@@ -19,7 +20,7 @@ const concepts = await getCollection("concepts", (entry) =>
 ---
 
 <Base
-  title={`${post.data.title} — Articles`}
+  title={`${post.data.title} — Experiences`}
   description={post.data.description}
 >
   {
@@ -78,4 +79,5 @@ const concepts = await getCollection("concepts", (entry) =>
       )
     }
   </article>
+  <ContextNotes />
 </Base>

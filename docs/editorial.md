@@ -76,3 +76,17 @@ Approval records a human decision; the command does not obtain one. Never manufa
 Run `npm run editorial -- validate` before committing canonical content. It checks all five document types, source checksums, profile references, concepts and selected approvals. Audio may be absent on another computer; transcripts must be present.
 
 If a profile update is interrupted, run `npm run editorial -- profile-resume`. The saved mutation journal retains the exact answer, before/after text and version explanation; resuming finishes those same immutable records. Do not answer the question again or edit the profile while that journal exists.
+
+## Reader terminology and inline explanations
+
+The site calls posts **Experiences**, matching the author's preference for observations grounded in practice. The internal `article` type and private `articles/` directory remain stable; `/experiences/` URLs are unchanged.
+
+Use ordinary numbered footnotes for general asides. To make the exact explained phrase visible and offer an inline explanation, pair a Markdown link with its footnote:
+
+```markdown
+A [virtual server](#context-2)[^context-2] provides the boundary.
+
+[^context-2]: The explanation of the complete phrase.
+```
+
+The link identifier must match the immediately following footnote reference. The Astro rehype plugin binds it to the footnote renderer's actual ID and fails a malformed pairing. The entire phrase is highlighted. Hover, focus or tap shows the explanation; Escape, another tap or clicking outside closes it. The number still navigates to the footer. Without JavaScript, the phrase itself links to the same footnote. Long explanations remain scrollable; the footer retains links and full Markdown formatting. Do not guess phrase boundaries from the word before a numbered reference. Recovered annotations use their original explicit labels.

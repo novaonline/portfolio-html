@@ -163,7 +163,7 @@ describe("source import and durable editorial state", () => {
         'import ContextTerm from "x";\n\nAn <ContextTerm term="API" note="A published contract." /> matters.',
       ),
     ).toBe(
-      "An API[^context-1] matters.\n\n[^context-1]: A published contract.\n",
+      "An [API](#context-1)[^context-1] matters.\n\n[^context-1]: A published contract.\n",
     );
   });
 });

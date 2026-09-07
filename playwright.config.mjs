@@ -15,7 +15,14 @@ export default defineConfig({
     colorScheme: "light",
   },
   projects: [
-    { name: "mobile", use: { viewport: { width: 360, height: 800 } } },
+    {
+      name: "mobile",
+      use: {
+        viewport: { width: 360, height: 800 },
+        isMobile: true,
+        hasTouch: true,
+      },
+    },
     { name: "desktop", use: { viewport: { width: 1280, height: 900 } } },
   ],
   webServer: process.env.PREVIEW_URL

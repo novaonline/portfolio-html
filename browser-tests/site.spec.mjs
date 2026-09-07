@@ -9,7 +9,7 @@ test("navigation fits, tag filters work, and theme persists", async ({
   await expect(
     page
       .getByRole("navigation")
-      .getByRole("link", { name: "Articles", exact: true }),
+      .getByRole("link", { name: "Experiences", exact: true }),
   ).toBeVisible();
   await expect(
     page
@@ -84,7 +84,7 @@ test("unselected routes stay absent and private concept backlinks work", async (
   const conceptTitle = (await conceptLink.innerText()).trim();
   await conceptLink.click();
   await expect(
-    page.getByRole("heading", { name: "Supporting articles" }),
+    page.getByRole("heading", { name: "Supporting experiences" }),
   ).toBeVisible();
   await page.locator('main aside a[href^="/experiences/"]').first().click();
   await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
@@ -98,4 +98,74 @@ test("unselected routes stay absent and private concept backlinks work", async (
   await expect(
     page.getByRole("heading", { name: conceptTitle, exact: true }),
   ).toBeVisible();
+});
+
+test("whole phrases support tap, keyboard, dismissal, hover and footer navigation", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    !process.env.PREVIEW_URL,
+    "Current public revisions predate phrase annotations; verify the new drafts in preview.",
+  );
+  await page.goto("/experiences/2026-03-29-mcp-needs-auth-and-governance/");
+  const term = page.getByRole("button", {
+    name: "virtual server",
+    exact: true,
+  });
+  await expect(term).toBeVisible();
+  if (testInfo.project.name === "mobile") await term.tap();
+  else await term.click();
+  const tooltip = page.locator(`#${await term.getAttribute("aria-controls")}`);
+  await expect(tooltip).toBeVisible();
+  await expect(tooltip).toContainText("IBM ContextForge");
+  const bounds = await tooltip.boundingBox();
+  expect(bounds.x).toBeGreaterThanOrEqual(0);
+  expect(bounds.x + bounds.width).toBeLessThanOrEqual(
+    page.viewportSize().width,
+  );
+  expect(bounds.y).toBeGreaterThanOrEqual(0);
+  await page.keyboard.press("Escape");
+  await expect(tooltip).toBeHidden();
+  await term.focus();
+  await page.keyboard.press("Space");
+  await expect(tooltip).toBeVisible();
+  await page.locator("h1").click();
+  await expect(tooltip).toBeHidden();
+  if (testInfo.project.name === "desktop") {
+    await term.hover();
+    await expect(tooltip).toBeVisible();
+    await tooltip.hover();
+    await expect(tooltip).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(tooltip).toBeHidden();
+  }
+  const ref = page.locator("a[data-footnote-ref]").nth(1);
+  await ref.click();
+  expect(page.url()).toContain(await ref.getAttribute("href"));
+  await expect(page.locator(await ref.getAttribute("href"))).toContainText(
+    "IBM ContextForge",
+  );
+});
+
+test("whole phrase links work with JavaScript disabled", async ({
+  browser,
+  baseURL,
+}) => {
+  test.skip(
+    !process.env.PREVIEW_URL,
+    "New annotations are in the private draft revisions.",
+  );
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    baseURL,
+  });
+  const page = await context.newPage();
+  await page.goto("/experiences/2026-03-29-mcp-needs-auth-and-governance/");
+  const term = page.getByRole("link", { name: "virtual server", exact: true });
+  await term.click();
+  expect(page.url()).toContain(await term.getAttribute("href"));
+  await expect(page.locator(await term.getAttribute("href"))).toContainText(
+    "IBM ContextForge",
+  );
+  await context.close();
 });

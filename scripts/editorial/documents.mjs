@@ -129,7 +129,7 @@ export function contextFootnotes(body) {
       /<ContextTerm\s+term="([^"]*)"\s+note="([^"]*)"\s*\/>/g,
       (_, term, note) => {
         notes.push(`[^context-${notes.length + 1}]: ${note}`);
-        return `${term}[^context-${notes.length}]`;
+        return `[${term}](#context-${notes.length})[^context-${notes.length}]`;
       },
     );
   if (body.includes("<ContextTerm"))

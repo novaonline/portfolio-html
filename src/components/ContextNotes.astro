@@ -1,0 +1,85 @@
+<!-- Full phrase links and numbered footnotes remain usable without JavaScript. -->
+<script>
+  const terms = document.querySelectorAll<HTMLAnchorElement>(
+    "[data-context-term]",
+  );
+  let closeActive: (() => void) | undefined;
+  terms.forEach((term, index) => {
+    const note = document.getElementById(term.hash.slice(1));
+    if (!note) return;
+    const copy = note.cloneNode(true) as HTMLElement;
+    copy
+      .querySelectorAll("[data-footnote-backref]")
+      .forEach((link) => link.remove());
+    const tooltip = document.createElement("span");
+    tooltip.id = `context-explanation-${index}`;
+    tooltip.className = "context-explanation";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.textContent = copy.textContent?.trim() ?? "";
+    tooltip.hidden = true;
+    document.body.append(tooltip);
+    term.setAttribute("role", "button");
+    term.setAttribute("aria-expanded", "false");
+    term.setAttribute("aria-controls", tooltip.id);
+    term.setAttribute("aria-describedby", tooltip.id);
+    let pinned = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const close = () => {
+      clearTimeout(timer);
+      tooltip.hidden = true;
+      pinned = false;
+      term.setAttribute("aria-expanded", "false");
+      if (closeActive === close) closeActive = undefined;
+    };
+    const show = () => {
+      clearTimeout(timer);
+      if (closeActive !== close) closeActive?.();
+      closeActive = close;
+      tooltip.hidden = false;
+      term.setAttribute("aria-expanded", "true");
+      const rect = term.getBoundingClientRect();
+      const width = tooltip.offsetWidth;
+      const height = tooltip.offsetHeight;
+      tooltip.style.left = `${Math.max(12, Math.min(rect.left, innerWidth - width - 12))}px`;
+      const below = rect.bottom + 8;
+      tooltip.style.top = `${Math.max(12, below + height < innerHeight - 12 ? below : rect.top - height - 8)}px`;
+    };
+    const leave = () => {
+      if (!pinned) timer = setTimeout(close, 150);
+    };
+    term.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "mouse") show();
+    });
+    term.addEventListener("pointerleave", leave);
+    tooltip.addEventListener("pointerenter", () => clearTimeout(timer));
+    tooltip.addEventListener("pointerleave", leave);
+    term.addEventListener("focus", show);
+    term.addEventListener("blur", close);
+    term.addEventListener("click", (event) => {
+      event.preventDefault();
+      if (pinned) close();
+      else {
+        show();
+        pinned = true;
+      }
+    });
+    term.addEventListener("keydown", (event) => {
+      if (event.key === " ") {
+        event.preventDefault();
+        term.click();
+      }
+    });
+    document.addEventListener("pointerdown", (event) => {
+      if (
+        !term.contains(event.target as Node) &&
+        !tooltip.contains(event.target as Node)
+      )
+        close();
+    });
+    window.addEventListener("scroll", close, { passive: true });
+    window.addEventListener("resize", close, { passive: true });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeActive?.();
+  });
+</script>
