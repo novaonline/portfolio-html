@@ -90,10 +90,10 @@ const heroSubtitle =
     </p>
     <p>
       My ideal architecture starts with web apps as the primary front door.
-      Behind that are HTTP-based APIs with self-generating open API specs.
-      Under the hood, it's event-driven with a very strong streaming governance
-      model. There is a clear decoupling between the product systems,
-      analytical systems, and business systems.
+      Behind that are HTTP-based APIs with self-generating open API specs. Under
+      the hood, it's event-driven with a very strong streaming governance model.
+      There is a clear decoupling between the product systems, analytical
+      systems, and business systems.
     </p>
 
     <figure class="my-6">
@@ -204,27 +204,25 @@ const heroSubtitle =
       </figcaption>
     </figure>
     <p>
-      The <b>product systems</b> have a goal to make both builders and operators
-      happy: builders are developers integrating via APIs/events (e.g., internal app
-      teams or partner engineers), while operators are field users who run the work
-      without writing software (e.g., dispatchers or technicians). When a feature is
-      built in the user interface, by default there is an equivalent public API for
-      builders. The events they emit represent the key verbs you can perform against
-      entities. This makes end users, analytical systems, and business systems
-      happy.
+      The <b>product systems</b> have a goal to make both builders and operators happy:
+      builders are developers integrating via APIs/events (e.g., internal app teams
+      or partner engineers), while operators are field users who run the work without
+      writing software (e.g., dispatchers or technicians). When a feature is built
+      in the user interface, by default there is an equivalent public API for builders.
+      The events they emit represent the key verbs you can perform against entities.
+      This makes end users, analytical systems, and business systems happy.
     </p>
     <p>
       The <b>analytical systems</b> have a goal of combining and producing observations
       for the end users and internal stakeholders. They consume events and capture
       anything else they need via the product system's access-controlled API gateways,
-      with privacy-aware handling of sensitive data. These observations are also
-      emitted as events for other systems, typically sanitized and aggregated. It's
-      important to note that it only makes sense for these systems to provide historical,
-      merged or aggregated
-      forms of data they consumed. One of the negative side effects of this architecture
-      is the possibility of data staleness or inconsistency. Therefore an important
-      part of their monitoring is building data quality checks, uniqueness checks,
-      monitoring pipelines, and periodic checksum inspired validations.
+      with privacy-aware handling of sensitive data. These observations are also emitted
+      as events for other systems, typically sanitized and aggregated. It's important
+      to note that it only makes sense for these systems to provide historical, merged
+      or aggregated forms of data they consumed. One of the negative side effects
+      of this architecture is the possibility of data staleness or inconsistency.
+      Therefore an important part of their monitoring is building data quality checks,
+      uniqueness checks, monitoring pipelines, and periodic checksum inspired validations.
     </p>
     <p>
       The <b>business systems</b> have a goal to make money. They focus on collecting
@@ -235,8 +233,6 @@ const heroSubtitle =
       loops. They also use the analytical systems to strategize and make data-driven
       decisions.
     </p>
-    <p>
-      More of this ideal will show up in a side project I'm working on.
-    </p>
+    <p>More of this ideal will show up in a side project I'm working on.</p>
   </section>
 </BaseLayout>

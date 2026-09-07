@@ -51,6 +51,19 @@ pre {
   max-width: 75ch;
 }
 
+[data-experience-body] a {
+  @apply underline underline-offset-4;
+}
+[data-experience-body] .footnotes {
+  @apply mt-10 border-t border-slate-300 pt-5 text-sm dark:border-slate-700;
+}
+[data-experience-body] .footnotes ol {
+  @apply list-decimal space-y-3 pl-5;
+}
+[data-experience-body] :target {
+  scroll-margin-top: 2rem;
+}
+
 :root [data-tag-filter] button.tag-filter__btn {
   transition:
     color 150ms ease,
@@ -83,5 +96,30 @@ pre {
   * {
     box-shadow: none !important;
     text-shadow: none !important;
+  }
+}
+
+/* Explain the whole authored phrase; the number still links to the endnote. */
+[data-experience-body] a.context-term-link {
+  @apply rounded-sm bg-sky-50 text-slate-900 decoration-sky-700 dark:bg-sky-950 dark:text-slate-100 dark:decoration-sky-300;
+  text-decoration-style: dotted;
+  cursor: help;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+[data-experience-body] a.context-term-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.context-explanation {
+  @apply fixed z-50 rounded-md border border-slate-300 bg-slate-50 p-3 text-sm leading-relaxed text-slate-900 shadow-lg dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100;
+  width: max-content;
+  max-width: min(22rem, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+}
+@media print {
+  .context-explanation {
+    display: none !important;
   }
 }

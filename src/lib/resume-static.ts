@@ -13,4 +13,5 @@ export const resume = process.env.RESUME_JSON
     : readJSON("resume.example.json");
 
 export const allowedSkills: string[] =
-  resume?.sections?.skills?.items?.map((s: any) => s?.name).filter(Boolean) ?? [];
+  resume?.sections?.skills?.items?.map((s: any) => s?.name).filter(Boolean) ??
+  [];

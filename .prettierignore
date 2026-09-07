@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.editorial/
+.work/
+.transcripts/
+resume.json
+package-lock.json
+src/content/experiences/
+src/content/concepts/
+deploy/helm/

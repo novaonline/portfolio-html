@@ -1,55 +1,32 @@
-# Astro Starter Kit: Minimal
+# Emmanuel’s portfolio and knowledge notebook
+
+A static Astro website with articles, evolving concepts and résumé integration. Canonical writing, recordings and editorial history live in the separate **private** `novaonline/portfolio-editorial` repository. This public repository contains the renderer, deterministic tooling, skills, and approved Markdown exports.
 
 ```sh
-npm create astro@latest -- --template minimal
+nvm use
+npm ci
+npm run verify
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+| Command                       | Purpose                                                 |
+| ----------------------------- | ------------------------------------------------------- |
+| `npm run verify`              | Format, Astro types, tests and production build         |
+| `npm run test:browser`        | Mobile/desktop navigation, tags, theme and footnotes    |
+| `npm run test:helm`           | Render and validate preview routing/access (Helm 4.2.2) |
+| `npm run fmt`                 | Format code and documentation                           |
+| `npm run editorial -- status` | Resume the private editorial workflow                   |
+| `npm run build`               | Validate selected public content and generate `dist/`   |
+| `npm run preview`             | Serve the generated build locally                       |
 
-## 🚀 Project Structure
+[Editorial workflow](docs/editorial.md) documents the ontology, import, writing profile and review commands. [Publishing](docs/publishing.md) covers Kubernetes previews, exact artifact promotion, rollback, bootstrap and operational checks. These commands work without an AI assistant. [AGENTS.md](AGENTS.md) identifies authoritative files for agents; `.agents/skills/` exposes the three conversational workflows.
 
-Inside of your Astro project, you'll see the following folders and files:
+`resume.json` is ignored. The loader accepts raw `RESUME_JSON`, then local `resume.json`, then `resume.example.json`. Never commit the private résumé. Runtime dependencies remain Astro only; test, formatting and publishing tools are development dependencies.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+Public articles retain `/experiences/<slug>/` and `/experiences/rss.xml`; concepts use `/concepts/<slug>/`. Canonical site URL comes from `SITE_URL`, normally the allocated Firebase `https://<project-id>.web.app`. Local builds use `http://localhost:4321`. `SITE_PREVIEW=1` is required for draft exports and disables indexing and feeds.
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Do not edit generated content under `src/content/experiences/` or `src/content/concepts/` directly. Its manifest binds the approved bytes. Edit private canonical Markdown, review the revision, then export. MDX rendering remains available for future interactions.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+Dependabot proposes dependency updates. Review major framework migrations separately; do not use `npm audit fix --force` to combine them with content work. `package-lock.json` pins the build dependency graph. CI uses GitHub-hosted runners for public code; private sources and deployments use the dedicated editorial runner.
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## Codex Skills
-
-This repo includes shareable Codex skills under `skills/`.
-
-To install the transcript-to-experience workflow in Codex, use:
-
-```text
-Use $skill-installer to install https://github.com/novaonline/portfolio-html/tree/main/skills/experience-from-transcript
-```
-
-Restart Codex after installing new skills.
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+[Maintenance status](docs/maintenance.md) records remaining dependency upgrade work and the distinction between automated checks and live deployment verification.

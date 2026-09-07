@@ -6,7 +6,7 @@ export async function GET(context: APIContext) {
   const items = (
     await getCollection(
       "experiences",
-      (entry) => !entry.data.unlisted && entry.data.rss !== false
+      (entry) => !entry.data.unlisted && entry.data.rss !== false,
     )
   ).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 

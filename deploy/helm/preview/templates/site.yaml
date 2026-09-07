@@ -1,0 +1,62 @@
+{{- if not .Values.allowedCidrs }}
+{{- fail "Configure allowedCidrs before deploying a preview" }}
+{{- end }}
+{{- range .Values.allowedCidrs }}
+{{- if or (eq . "0.0.0.0/0") (eq . "::/0") }}
+{{- fail "Public network ranges are forbidden for editorial previews" }}
+{{- end }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: 1
+  strategy: { type: RollingUpdate, rollingUpdate: { maxSurge: 1, maxUnavailable: 0 } }
+  selector:
+    matchLabels: { app: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels: { app: {{ .Release.Name }} }
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      hostNetwork: false
+      dnsPolicy: ClusterFirst
+      automountServiceAccountToken: false
+      securityContext: { runAsNonRoot: true, runAsUser: 101, runAsGroup: 101, fsGroup: 101 }
+      containers:
+        - name: site
+          image: {{ required "Pin the preview image by digest" .Values.image | quote }}
+          ports: [{ name: http, containerPort: 8080 }]
+          # Kube-OVN translates node probes; check locally without opening the backend to gateways.
+          readinessProbe:
+            exec: { command: [wget, -q, -O, /dev/null, "http://127.0.0.1:8080/"] }
+            timeoutSeconds: 2
+          livenessProbe:
+            exec: { command: [wget, -q, -O, /dev/null, "http://127.0.0.1:8080/"] }
+            timeoutSeconds: 2
+          resources:
+            requests: { cpu: 10m, memory: 24Mi }
+            limits: { cpu: 200m, memory: 128Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          volumeMounts:
+            - { name: config, mountPath: /etc/nginx/conf.d, readOnly: true }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: config
+          configMap: { name: {{ .Release.Name }}-nginx }
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  selector: { app: {{ .Release.Name }} }
+  ports: [{ name: http, port: 80, targetPort: http }]

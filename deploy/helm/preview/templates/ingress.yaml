@@ -1,0 +1,37 @@
+apiVersion: k8s.nginx.org/v1
+kind: Policy
+metadata:
+  name: {{ .Release.Name }}-access
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  accessControl:
+    allow:
+      {{- toYaml (concat .Values.allowedCidrs .Values.ingress.natCidrs) | nindent 6 }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer | quote }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.hostname | quote }}
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+    nginx.org/policies: {{ printf "%s-access" .Release.Name | quote }}
+    nginx.org/ssl-redirect: "true"
+spec:
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  tls:
+    - hosts: [{{ .Values.hostname | quote }}]
+      secretName: {{ .Release.Name }}-tls
+  rules:
+    - host: {{ .Values.hostname | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port: { number: 80 }

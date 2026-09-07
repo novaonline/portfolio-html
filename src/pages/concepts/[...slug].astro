@@ -1,0 +1,79 @@
+---
+import ContextNotes from "../../components/ContextNotes.astro";
+import Base from "../../layouts/Base.astro";
+import TagList from "../../components/TagList.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+export async function getStaticPaths() {
+  return (await getCollection("concepts")).map((concept) => ({
+    params: { slug: concept.slug },
+    props: { concept },
+  }));
+}
+const { concept } = Astro.props as { concept: CollectionEntry<"concepts"> };
+const { Content } = await concept.render();
+const articles = await getCollection("experiences", (entry) =>
+  entry.data.concepts.includes(concept.slug),
+);
+const related = await getCollection(
+  "concepts",
+  (entry) =>
+    entry.slug !== concept.slug &&
+    (concept.data.concepts.includes(entry.slug) ||
+      entry.data.concepts.includes(concept.slug)),
+);
+---
+
+<Base
+  title={`${concept.data.title} — Concepts`}
+  description={concept.data.description}
+>
+  {
+    concept.data.noindex && (
+      <meta slot="head" name="robots" content="noindex, nofollow" />
+    )
+  }
+  <article class="prose prose-slate max-w-3xl dark:prose-invert">
+    <h1 class="text-3xl font-semibold">{concept.data.title}</h1>
+    <div class="mt-4"><TagList tags={concept.data.tags} /></div>
+    <div data-experience-body class="mt-10 space-y-7 text-[1.05rem] leading-8">
+      <Content />
+    </div>
+    {
+      articles.length > 0 && (
+        <aside class="mt-10">
+          <>
+            <h2 class="text-xl font-semibold">Supporting experiences</h2>
+            <ul class="mt-3 space-y-2">
+              {articles.map((article) => (
+                <li>
+                  <a class="underline" href={`/experiences/${article.slug}/`}>
+                    {article.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        </aside>
+      )
+    }
+    {
+      related.length > 0 && (
+        <aside class="mt-8">
+          <>
+            <h2 class="text-xl font-semibold">Connected concepts</h2>
+            <ul class="mt-3 space-y-2">
+              {related.map((item) => (
+                <li>
+                  <a class="underline" href={`/concepts/${item.slug}/`}>
+                    {item.data.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        </aside>
+      )
+    }
+  </article>
+  <ContextNotes />
+</Base>

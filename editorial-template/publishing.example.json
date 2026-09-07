@@ -1,0 +1,27 @@
+{
+  "editorialRepository": "novaonline/portfolio-editorial",
+  "websiteRepository": "novaonline/portfolio-html",
+  "websiteBranch": "main",
+  "firebaseProjectId": "",
+  "runnerLabel": "portfolio-editorial",
+  "registry": "registry.equagraine.ca",
+  "namespace": "portfolio-preview",
+  "previewHostname": "portfolio-preview.equagraine.ca",
+  "releaseHostname": "portfolio-release.equagraine.ca",
+  "allowedCidrs": [],
+  "workloadIdentityProvider": "",
+  "serviceAccount": "",
+  "runnerIp": "",
+  "runnerNamespace": "actions-runner-controller",
+  "ingress": {
+    "className": "nginx",
+    "clusterIssuer": "equagraine-cloudflare-issuer",
+    "controllerNamespace": "nginx-ingress",
+    "controllerLabels": {
+      "app.kubernetes.io/name": "nginx-ingress",
+      "app.kubernetes.io/instance": "nginx-ingress"
+    },
+    "natCidrs": [],
+    "privateNetworkConfirmed": false
+  }
+}

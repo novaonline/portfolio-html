@@ -1,0 +1,159 @@
+name: Publish portfolio
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        options: [preview, release, promote, rollback]
+        required: true
+      website_revision:
+        description: Full reviewed website commit SHA (all operations)
+        required: true
+        type: string
+      release_id:
+        description: Stable release ID
+        required: true
+        type: string
+      artifact_run_id:
+        description: Original release workflow run ID (promote/rollback)
+        type: string
+      expected_sha256:
+        description: Reviewed package checksum (promote/rollback)
+        type: string
+permissions:
+  contents: write
+  id-token: write
+  actions: read
+concurrency:
+  group: portfolio-publishing
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, portfolio-editorial]
+    timeout-minutes: 30
+    env:
+      OPERATION: ${{ inputs.operation }}
+      WEBSITE_REVISION: ${{ inputs.website_revision }}
+      RELEASE_ID: ${{ inputs.release_id }}
+      ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+      EXPECTED_SHA256: ${{ inputs.expected_sha256 }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: editorial
+          ref: main
+          fetch-depth: 0
+      - name: Validate dispatch
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$WEBSITE_REVISION" =~ ^[a-f0-9]{40}$ ]]
+          [[ "$RELEASE_ID" =~ ^[a-z0-9][a-z0-9-]{0,79}$ ]]
+          if [[ "$OPERATION" == promote || "$OPERATION" == rollback ]]; then
+            [[ "$ARTIFACT_RUN_ID" =~ ^[0-9]+$ ]]
+            [[ "$EXPECTED_SHA256" =~ ^[a-f0-9]{64}$ ]]
+          fi
+          git -C editorial config user.name 'github-actions[bot]'
+          git -C editorial config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - uses: actions/checkout@v4
+        with:
+          repository: novaonline/portfolio-html
+          ref: ${{ inputs.website_revision }}
+          path: website
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: website/.nvmrc
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: website
+      - name: Read validated configuration
+        id: config
+        working-directory: website
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import {config} from './scripts/editorial/deploy.mjs';
+          const c=config('../editorial');
+          if (c.editorialRepository !== process.env.GITHUB_REPOSITORY) throw new Error('Wrong editorial repository');
+          for (const [key,value] of Object.entries({provider:c.workloadIdentityProvider,account:c.serviceAccount,preview_url:`https://${process.env.OPERATION === "preview" ? c.previewHostname : c.releaseHostname}/`})) {
+            if (/[\r\n]/.test(value)) throw new Error('Invalid configuration');
+            fs.appendFileSync(process.env.GITHUB_OUTPUT,`${key}=${value}\n`);
+          }
+          JS
+      - name: Build pinned content once
+        if: inputs.operation == 'preview' || inputs.operation == 'release'
+        working-directory: website
+        run: node scripts/editorial/publish.mjs "$OPERATION" --root ../editorial --code . --code-revision "$WEBSITE_REVISION" --release-id "$RELEASE_ID"
+      - name: Deploy private preview through Argo CD
+        if: inputs.operation == 'preview' || inputs.operation == 'release'
+        working-directory: website
+        run: node scripts/editorial/publish.mjs deploy-preview --root ../editorial --code . --release-id "$RELEASE_ID"
+      - name: Verify preview bytes and noindex header
+        env:
+          PREVIEW_URL: ${{ steps.config.outputs.preview_url }}
+        if: inputs.operation == 'preview' || inputs.operation == 'release'
+        working-directory: website
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 90); do
+            if node scripts/editorial/publish.mjs check-preview --root ../editorial --release-id "$RELEASE_ID" --url "$PREVIEW_URL"; then exit 0; fi
+            sleep 5
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && (inputs.operation == 'preview' || inputs.operation == 'release') && hashFiles(format('editorial/releases/{0}/receipt.json', inputs.release_id)) != '' }}
+        with:
+          name: portfolio-${{ inputs.release_id }}
+          path: |
+            editorial/releases/${{ inputs.release_id }}/site
+            editorial/releases/${{ inputs.release_id }}/public-source
+            editorial/releases/${{ inputs.release_id }}/receipt.json
+            editorial/releases/${{ inputs.release_id }}/preview-check.json
+          include-hidden-files: true
+          retention-days: 30
+          if-no-files-found: error
+      - uses: actions/download-artifact@v4
+        if: inputs.operation == 'promote' || inputs.operation == 'rollback'
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ inputs.artifact_run_id }}
+          name: portfolio-${{ inputs.release_id }}
+          path: editorial/releases/${{ inputs.release_id }}
+      - name: Validate retained release
+        if: inputs.operation == 'promote' || inputs.operation == 'rollback'
+        run: node website/scripts/editorial/publish.mjs status --root editorial --release-id "$RELEASE_ID"
+      - uses: google-github-actions/auth@v3
+        if: inputs.operation == 'promote' || inputs.operation == 'rollback'
+        with:
+          workload_identity_provider: ${{ steps.config.outputs.provider }}
+          service_account: ${{ steps.config.outputs.account }}
+      - uses: actions/checkout@v4
+        if: inputs.operation == 'promote' || inputs.operation == 'rollback'
+        with:
+          repository: novaonline/portfolio-html
+          ref: main
+          path: public-export
+          ssh-key: ${{ secrets.WEBSITE_EXPORT_SSH_KEY }}
+      - name: Promote or restore retained artifact
+        if: inputs.operation == 'promote' || inputs.operation == 'rollback'
+        working-directory: website
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C ../public-export config user.name 'github-actions[bot]'
+          git -C ../public-export config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          node scripts/editorial/publish.mjs "$OPERATION" --root ../editorial --code . --release-id "$RELEASE_ID" --expected-sha256 "$EXPECTED_SHA256" --operation-id "run-$GITHUB_RUN_ID" --public-checkout ../public-export
+      - name: Record release identity in run summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "editorial/releases/$RELEASE_ID/receipt.json" ]]; then
+            printf '\n```json\n' >> "$GITHUB_STEP_SUMMARY"
+            cat "editorial/releases/$RELEASE_ID/receipt.json" >> "$GITHUB_STEP_SUMMARY"
+            printf '\n```\n' >> "$GITHUB_STEP_SUMMARY"
+          fi

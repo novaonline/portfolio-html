@@ -25,7 +25,7 @@ const isExperiences = Astro.url.pathname.startsWith("/experiences");
             window.matchMedia("(prefers-color-scheme: dark)").matches;
           var useDark = stored ? stored === "dark" : prefersDark;
           document.documentElement.classList[useDark ? "add" : "remove"](
-            "dark"
+            "dark",
           );
         } catch (_) {
           /* ignore */
@@ -34,13 +34,23 @@ const isExperiences = Astro.url.pathname.startsWith("/experiences");
     </script>
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    {
+      import.meta.env.SITE_PREVIEW === "1" && (
+        <meta name="robots" content="noindex, nofollow" />
+      )
+    }
+    {
+      import.meta.env.SITE_URL && (
+        <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+      )
+    }
     <slot name="head" />
   </head>
   <body
     class="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100 font-sans"
   >
     <header
-      class="mx-auto flex max-w-4xl items-center justify-between px-4 py-6"
+      class="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 px-4 py-6"
     >
       <a
         href="/"
@@ -52,9 +62,17 @@ const isExperiences = Astro.url.pathname.startsWith("/experiences");
           href="/experiences/"
           class:list={[
             "underline-offset-4 hover:underline",
-            isExperiences && "underline decoration-slate-400 dark:decoration-slate-500",
+            isExperiences &&
+              "underline decoration-slate-400 dark:decoration-slate-500",
           ]}
           aria-current={isExperiences ? "page" : undefined}>Experiences</a
+        >
+        <a
+          href="/concepts/"
+          class="underline-offset-4 hover:underline"
+          aria-current={Astro.url.pathname.startsWith("/concepts")
+            ? "page"
+            : undefined}>Concepts</a
         >
         <ThemeToggle />
       </nav>
