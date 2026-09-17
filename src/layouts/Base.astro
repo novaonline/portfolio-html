@@ -67,13 +67,6 @@ const isExperiences = Astro.url.pathname.startsWith("/experiences");
           ]}
           aria-current={isExperiences ? "page" : undefined}>Experiences</a
         >
-        <a
-          href="/concepts/"
-          class="underline-offset-4 hover:underline"
-          aria-current={Astro.url.pathname.startsWith("/concepts")
-            ? "page"
-            : undefined}>Concepts</a
-        >
         <ThemeToggle />
       </nav>
     </header>

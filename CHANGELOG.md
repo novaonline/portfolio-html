@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Hide Concepts from the primary navigation for the first article release.
+
 - Rename the front-gate experience to “Heavy Reads Belong at the Front Gate”.
 
 - Identify the incomplete reading explicitly and distinguish analytics’ temperature-threshold count from the API’s unit conversion.
