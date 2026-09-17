@@ -1,3 +1,5 @@
+@import "./inline-shapes.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -46,6 +48,14 @@ pre {
 }
 
 /* Prose readability (works with or without typography plugin) */
+[data-experience-body] > blockquote {
+  @apply my-8 rounded-r-lg border-l-4 border-sky-600 bg-sky-50 p-5 text-slate-800 dark:border-sky-400 dark:bg-slate-900 dark:text-slate-200;
+}
+
+[data-experience-body] > blockquote > p + p {
+  @apply mt-4;
+}
+
 .reading {
   line-height: 1.7;
   max-width: 75ch;

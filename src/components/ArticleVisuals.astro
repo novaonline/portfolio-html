@@ -1,0 +1,135 @@
+---
+import "../styles/article-visuals.css";
+import BackfillComparison from "./BackfillComparison.astro";
+---
+
+<BackfillComparison />
+
+<script>
+  // Sample the reference's 45% spring at 120 Hz; keyframes keep text/layout fixed.
+  const elasticity = 0.45;
+  const travelFrames = (direction: number): Keyframe[] =>
+    Array.from({ length: 121 }, (_, i) => {
+      const u = i / 120;
+      const smooth = u * u * u * (u * (u * 6 - 15) + 10);
+      const stretch = 1 + Math.sin(Math.PI * u) ** 2 * 0.3 * elasticity;
+      return {
+        offset: u,
+        transform: `translateX(${(-70 + 140 * smooth) * direction}px) scale(${stretch}, ${1 / stretch})`,
+        opacity: 1,
+      };
+    });
+  const reactionFrames: Keyframe[] = [];
+  let displacement = 0;
+  let velocity = -1.75 * 0.4 * (0.12 + elasticity);
+  for (let i = 0; i <= 120; i++) {
+    reactionFrames.push({
+      offset: i / 120,
+      transform: `scale(${1 + displacement}, ${1 - displacement * 0.72})`,
+    });
+    velocity +=
+      (-175 * displacement -
+        2 * Math.sqrt(175) * (0.93 - 0.48 * elasticity) * velocity) /
+      120;
+    displacement += velocity / 120;
+  }
+  reactionFrames[120] = { offset: 1, transform: "scale(1)" };
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  document.querySelectorAll<HTMLElement>(".notebook-cell").forEach((cell) => {
+    const replay = cell.querySelector<HTMLButtonElement>(".cell-replay")!;
+    const pause = cell.querySelector<HTMLButtonElement>(".cell-pause")!;
+    let animations: Animation[] = [];
+    let played = false;
+    let inView = false;
+    let paused = false;
+    function settle() {
+      animations.forEach((animation) => animation.cancel());
+      animations = [];
+    }
+    function syncPlayback() {
+      const stopped = document.hidden || !inView || paused || reduced.matches;
+      cell.classList.toggle("is-living", !stopped);
+      animations.forEach((animation) => {
+        if (animation.playState === "finished") return;
+        if (stopped) animation.pause();
+        else if (animation.playState === "paused") animation.play();
+      });
+      pause.textContent = paused ? "Resume" : "Pause";
+      pause.setAttribute("aria-pressed", String(paused));
+      pause.setAttribute(
+        "aria-label",
+        `${paused ? "Resume" : "Pause"} this visual`,
+      );
+    }
+    function play() {
+      settle();
+      if (reduced.matches) return;
+      played = true;
+      const rows = cell.querySelectorAll<SVGGElement>(".cell-interaction");
+      rows.forEach((row, index) => {
+        const delay = index * 1900;
+        animations.push(
+          row.animate([{ opacity: 0.15 }, { opacity: 1 }], {
+            delay,
+            duration: 300,
+            fill: "both",
+          }),
+        );
+        const packet = row.querySelector<SVGGElement>(".cell-packet");
+        if (packet)
+          animations.push(
+            packet.animate(travelFrames(Number(packet.dataset.travel)), {
+              delay,
+              duration: 1130,
+              easing: "linear",
+              fill: "both",
+            }),
+          );
+        const outcome = row.querySelector(".cell-outcome");
+        if (outcome)
+          animations.push(
+            outcome.animate([{ opacity: 0 }, { opacity: 1 }], {
+              delay: delay + 1130,
+              duration: 300,
+              fill: "both",
+            }),
+          );
+        const body = cell.querySelector(
+          `[data-owner="${row.dataset.destination}"] .cell-body`,
+        );
+        if (body)
+          animations.push(
+            body.animate(reactionFrames, {
+              delay: delay + 1130,
+              duration: 1000,
+              fill: "none",
+            }),
+          );
+      });
+      syncPlayback();
+    }
+    replay.hidden = pause.hidden = reduced.matches;
+    replay.addEventListener("click", () => {
+      paused = false;
+      play();
+    });
+    pause.addEventListener("click", () => {
+      paused = !paused;
+      syncPlayback();
+    });
+    reduced.addEventListener("change", () => {
+      settle();
+      replay.hidden = pause.hidden = reduced.matches;
+      syncPlayback();
+    });
+    document.addEventListener("visibilitychange", syncPlayback);
+    new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        if (inView && !played) play();
+        else syncPlayback();
+      },
+      { threshold: 0.35 },
+    ).observe(cell.querySelector(".cell-visual")!);
+  });
+</script>

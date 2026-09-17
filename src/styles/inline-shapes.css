@@ -1,0 +1,50 @@
+/* Build-time Markdown tokens. Available even on pages without diagrams or JS. */
+.inline-shape {
+  display: inline-block;
+  padding: 0 0.3em;
+  border-radius: 0.25em;
+  background: #cbd5e1;
+  color: #0f172a;
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1.45;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+.inline-shape.shape-pill {
+  border-radius: 999px;
+  padding-inline: 0.5em;
+}
+.inline-shape.shape-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  padding: 0;
+  border-radius: 50%;
+}
+.inline-shape.shape-blue {
+  background: #38bdf8;
+}
+.inline-shape.shape-purple {
+  background: #a78bfa;
+}
+.inline-shape.shape-amber {
+  background: #fbbf24;
+}
+.inline-shape.shape-red {
+  background: #fb7185;
+}
+.inline-shape.shape-green {
+  background: #86efac;
+}
+.inline-shape.shape-missing {
+  outline: 1px dashed #be123c;
+  outline-offset: 1px;
+}
+@media (forced-colors: active) {
+  .inline-shape {
+    border: 1px solid CanvasText;
+  }
+}

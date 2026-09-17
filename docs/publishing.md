@@ -72,4 +72,4 @@ gcloud auth login
 ./node_modules/.bin/firebase login
 ```
 
-After signing in, run the documented Google bootstrap and save the allocated project ID, provider and service account in private `publishing.json`. No Firebase project or public release has been created by the unauthenticated bootstrap.
+After signing in, run the documented Google bootstrap and save the allocated project ID, provider and service account in private `publishing.json`. The dedicated Firebase project and repository-scoped OIDC publisher are now configured in private `publishing.json`. The initial permission error while creating the new workload identity pool cleared on an idempotent retry. Setup does not publish content: prepare an identified release and verify its private preview before promotion.

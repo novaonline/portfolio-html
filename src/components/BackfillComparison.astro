@@ -1,0 +1,354 @@
+---
+import "../styles/backfill-comparison.css";
+---
+
+<script>
+  import {
+    initialPages,
+    changePages,
+    PAGE_SIZES,
+    PAGE_LIMITS,
+  } from "../scripts/backfill-state.mjs";
+  import {
+    PRESET,
+    springStep,
+    impulseVelocity,
+    bodyScale,
+    heartbeat,
+    haloFrame,
+    decayHalo,
+    travelFrame,
+  } from "../scripts/living-motion.mjs";
+  type Action = "next" | "resolve";
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  document
+    .querySelectorAll<HTMLElement>("[data-backfill-comparison]")
+    .forEach((figure) => {
+      let state = initialPages();
+      let paused = false,
+        visible = false,
+        time = 0,
+        previous = 0,
+        accumulator = 0;
+      const pause = figure.querySelector<HTMLButtonElement>(
+        '[data-action="pause"]',
+      )!;
+      const lanes = Array.from(
+        figure.querySelectorAll<HTMLElement>("[data-route]"),
+      ).map((element) => ({
+        element,
+        route: element.dataset.route as "database" | "api",
+        queue: [] as Action[],
+        active: null as null | {
+          action: Action;
+          phase: number;
+          elapsed: number;
+        },
+        nodes: Array.from(
+          element.querySelectorAll<HTMLElement>(".comparison-node"),
+        ).map((element) => ({ element, position: 0, velocity: 0, halo: 0 })),
+        message: element.querySelector<HTMLElement>(".comparison-message")!,
+      }));
+      figure
+        .querySelectorAll<HTMLElement>(
+          ".comparison-interaction,.comparison-global",
+        )
+        .forEach((el) => (el.hidden = false));
+      function pulse(lane: (typeof lanes)[number], index: number) {
+        const node = lane.nodes[index];
+        node.velocity = impulseVelocity(node.velocity, 0.7);
+        node.halo = 1;
+      }
+      function counts() {
+        for (const lane of lanes) {
+          const value = state[lane.route];
+          const pageSize = PAGE_SIZES[lane.route];
+          const pageLimit = PAGE_LIMITS[lane.route];
+          const queued =
+            lane.queue.filter((a) => a === "next").length +
+            Number(lane.active?.action === "next");
+          const pending = value.pages - value.resolved;
+          lane.element.querySelector("output")!.textContent =
+            `${value.pages} / ${pageLimit} ${lane.route === "database" ? "batch" : "pages"} · ${(value.pages * pageSize).toLocaleString("en-CA")} readings`;
+          lane.element.querySelector("[data-status]")!.textContent = lane.active
+            ? lane.active.action === "resolve"
+              ? "Analytics is resolving the incomplete reading…"
+              : lane.active.phase === 3 && lane.route === "api"
+                ? "The API is resolving the incomplete reading…"
+                : `Fetching readings${queued > 1 ? ` · ${queued - 1} queued` : ""}…`
+            : pending
+              ? `Incomplete batch · resolve the missing unit before calculating`
+              : value.pages
+                ? `${(value.resolved * pageSize).toLocaleString("en-CA")} ready to calculate`
+                : "Fetch readings to begin";
+          const next = lane.element.querySelector<HTMLButtonElement>(
+            '[data-action="next"]',
+          )!;
+          next.disabled = value.pages + queued >= pageLimit;
+
+          const resolve = lane.element.querySelector<HTMLButtonElement>(
+            '[data-action="resolve"]',
+          );
+          if (resolve)
+            resolve.disabled =
+              pending === 0 ||
+              lane.active?.action === "resolve" ||
+              lane.queue.includes("resolve");
+        }
+      }
+      function begin(lane: (typeof lanes)[number]) {
+        if (lane.active || !lane.queue.length) return;
+        const action = lane.queue.shift()!;
+        lane.active = { action, phase: action === "next" ? 0 : 3, elapsed: 0 };
+        pulse(lane, 0);
+        counts();
+      }
+      function finish(lane: (typeof lanes)[number]) {
+        state = changePages(state, lane.route, lane.active!.action);
+        lane.active = null;
+        lane.message.hidden = true;
+        counts();
+      }
+      function advance(dt: number) {
+        time += dt;
+        for (const lane of lanes) {
+          begin(lane);
+          const job = lane.active;
+          if (job) {
+            job.elapsed += dt;
+            const duration =
+              job.action === "resolve"
+                ? 1.8
+                : job.phase === 1
+                  ? 0.25
+                  : job.phase === 3
+                    ? lane.route === "api"
+                      ? 0.85
+                      : 0.25
+                    : PRESET.publish;
+            if (job.elapsed >= duration) {
+              if (
+                job.action === "resolve" ||
+                job.phase === (lane.route === "api" ? 4 : 2)
+              ) {
+                pulse(lane, 0);
+                finish(lane);
+              } else {
+                job.phase++;
+                job.elapsed = 0;
+                if (job.phase === 1) pulse(lane, lane.nodes.length - 1);
+                if (job.phase === 3) pulse(lane, 1);
+                counts();
+              }
+            }
+          }
+          for (const node of lane.nodes) {
+            const next = springStep({
+              position: node.position,
+              velocity: node.velocity,
+            });
+            node.position = next.position;
+            node.velocity = next.velocity;
+            node.halo = decayHalo(node.halo, dt);
+          }
+        }
+      }
+      function render() {
+        for (const lane of lanes) {
+          lane.nodes.forEach((node, i) => {
+            const scale = bodyScale(node.position, time, i, reduced.matches),
+              halo = haloFrame(node.halo),
+              beat = heartbeat(time, i);
+            node.element.style.setProperty("--body-x", String(scale.x));
+            node.element.style.setProperty("--body-y", String(scale.y));
+            node.element.style.setProperty(
+              "--halo-opacity",
+              String(halo.opacity),
+            );
+            node.element.style.setProperty("--halo-scale", String(halo.scale));
+            const dot =
+              node.element.querySelector<HTMLElement>(".comparison-beat")!;
+            dot.style.transform = `scale(${reduced.matches ? 1 : beat.dotRadius / 2.5})`;
+            dot.style.opacity = String(
+              reduced.matches ? 0.67 : beat.dotOpacity,
+            );
+          });
+          const job = lane.active;
+          const value = state[lane.route];
+          const pending = value.pages > value.resolved;
+          const converting = job?.action === "resolve";
+          const stage = converting
+            ? job.elapsed < 0.6
+              ? "86 ?"
+              : job.elapsed < 1.2
+                ? "86°F"
+                : "30°C"
+            : pending
+              ? "86 ?"
+              : "30°C";
+          const client = lane.nodes[0].element;
+          client.dataset.state = converting
+            ? "resolving"
+            : pending
+              ? "blocked"
+              : value.pages
+                ? "ready"
+                : "empty";
+          const received = client.querySelector<HTMLElement>(
+            ".comparison-received",
+          )!;
+          if (!received.querySelector("[data-received-reading]")) {
+            received.replaceChildren();
+            const reading = document.createElement("span");
+            reading.className = "comparison-reading reading-2";
+            reading.dataset.receivedReading = "";
+            received.append(reading);
+          }
+          const reading = received.querySelector<HTMLElement>(
+            "[data-received-reading]",
+          )!;
+          reading.textContent = value.pages || converting ? stage : "—";
+          reading.classList.toggle(
+            "is-unresolved",
+            pending && (!converting || job.elapsed < 1.2),
+          );
+          client.querySelector<HTMLElement>(
+            "[data-client-state]",
+          )!.textContent = converting
+            ? job.elapsed < 0.6
+              ? "Identify unit…"
+              : job.elapsed < 1.2
+                ? "Convert °F → °C…"
+                : "Validate batch…"
+            : pending
+              ? "⚠ Incomplete · resolve first"
+              : value.pages
+                ? "✓ Ready to calculate"
+                : "Awaiting readings";
+          lane.message.hidden = !job || reduced.matches || converting;
+          if (!job) continue;
+          const resolving = job.action === "resolve";
+          const normal =
+            (resolving && job.elapsed >= 0.6) ||
+            (!resolving &&
+              lane.route === "api" &&
+              (job.phase === 4 || (job.phase === 3 && job.elapsed >= 0.6)));
+          const incompleteReading =
+            lane.message.querySelector<HTMLElement>(".reading-2")!;
+          incompleteReading.textContent = normal ? "30°C" : "86 ?";
+          incompleteReading.classList.toggle("is-unresolved", !normal);
+          const travel = travelFrame(Math.min(1, job.elapsed / PRESET.publish));
+          const clientPosition = lane.route === "api" ? 16 : 25;
+          const backend = 100 - clientPosition;
+          const position = resolving
+            ? clientPosition
+            : job.phase === 0
+              ? clientPosition + (backend - clientPosition) * travel.progress
+              : job.phase === 1
+                ? backend
+                : job.phase === 2
+                  ? backend -
+                    (backend - (lane.route === "api" ? 50 : clientPosition)) *
+                      travel.progress
+                  : job.phase === 3
+                    ? 50
+                    : 50 - 34 * travel.progress;
+          const requesting = !resolving && job.phase === 0;
+          lane.message.querySelector<HTMLElement>(
+            ".comparison-readings",
+          )!.hidden = requesting;
+          lane.message.querySelector<HTMLElement>(".comparison-batch")!.hidden =
+            requesting;
+          lane.message.querySelector<HTMLElement>(
+            ".comparison-request",
+          )!.hidden = !requesting;
+          lane.message.dataset.phase = resolving
+            ? "analytics-resolving"
+            : ["request", "backend", "raw-return", "interpretation", "return"][
+                job.phase
+              ];
+          lane.message.style.left = `${position}%`;
+          lane.message.style.transform = `translate(-50%,-50%) scale(${job.phase % 2 === 1 ? 1 : travel.stretchX},${job.phase % 2 === 1 ? 1 : travel.stretchY})`;
+        }
+      }
+      function sync() {
+        pause.hidden = reduced.matches;
+        pause.querySelector("[data-icon]")!.textContent = paused ? "▶" : "Ⅱ";
+        pause.title = paused ? "Resume motion" : "Pause motion";
+        pause.setAttribute("aria-label", pause.title);
+        pause.setAttribute("aria-pressed", String(paused));
+        if (reduced.matches) {
+          for (const lane of lanes) {
+            if (lane.active) finish(lane);
+            while (lane.queue.length) {
+              state = changePages(state, lane.route, lane.queue.shift()!);
+            }
+            for (const node of lane.nodes) {
+              node.position = 0;
+              node.velocity = 0;
+              node.halo = 0;
+            }
+          }
+          counts();
+          render();
+        }
+      }
+      figure.addEventListener("click", (event) => {
+        const button = (event.target as Element).closest<HTMLButtonElement>(
+          "button[data-action]",
+        );
+        if (!button || button.disabled) return;
+        const action = button.dataset.action!;
+        if (action === "pause") paused = !paused;
+        else if (action === "reset") {
+          state = initialPages();
+          for (const lane of lanes) {
+            lane.queue = [];
+            lane.active = null;
+            lane.message.hidden = true;
+            for (const node of lane.nodes) {
+              node.position = 0;
+              node.velocity = 0;
+              node.halo = 0;
+            }
+          }
+        } else {
+          const lane = lanes.find(
+            (l) => l.element === button.closest("[data-route]"),
+          )!;
+          lane.queue.push(action as Action);
+          if (!paused) begin(lane);
+        }
+        counts();
+        sync();
+        render();
+      });
+      reduced.addEventListener("change", sync);
+      new IntersectionObserver(
+        ([entry]) => {
+          visible = entry.isIntersecting;
+          previous = 0;
+        },
+        { threshold: 0.15 },
+      ).observe(figure);
+      function frame(now: number) {
+        // Also reconcile when a browser changes media preferences between frames.
+        if (pause.hidden !== reduced.matches) sync();
+        const dt = previous ? Math.min(0.05, (now - previous) / 1000) : 0;
+        previous = now;
+        if (visible && !paused && !document.hidden && !reduced.matches) {
+          accumulator += dt;
+          while (accumulator >= PRESET.fixedStep) {
+            advance(PRESET.fixedStep);
+            accumulator -= PRESET.fixedStep;
+          }
+          render();
+        }
+        requestAnimationFrame(frame);
+      }
+      counts();
+      sync();
+      render();
+      requestAnimationFrame(frame);
+    });
+</script>

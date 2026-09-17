@@ -1,5 +1,6 @@
 ---
 import ContextNotes from "../../components/ContextNotes.astro";
+import ArticleVisuals from "../../components/ArticleVisuals.astro";
 import Base from "../../layouts/Base.astro";
 import { getCollection, type CollectionEntry } from "astro:content";
 import TagList from "../../components/TagList.astro";
@@ -80,4 +81,5 @@ const concepts = await getCollection("concepts", (entry) =>
     }
   </article>
   <ContextNotes />
+  {post.body.includes("[visual:") && <ArticleVisuals />}
 </Base>
