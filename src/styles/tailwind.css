@@ -64,6 +64,12 @@ pre {
 [data-experience-body] a {
   @apply underline underline-offset-4;
 }
+[data-experience-body] > ul {
+  @apply my-6 list-disc space-y-2 pl-6;
+}
+[data-experience-body] > ol {
+  @apply my-6 list-decimal space-y-2 pl-6;
+}
 [data-experience-body] .footnotes {
   @apply mt-10 border-t border-slate-300 pt-5 text-sm dark:border-slate-700;
 }

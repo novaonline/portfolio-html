@@ -110,6 +110,10 @@ export function exportContent(root, site, { preview = false, selection } = {}) {
       ["articles", "concepts"].flatMap((kind) =>
         files(path.join(root, kind))
           .filter((file) => file.endsWith(".md"))
+          .filter(
+            (file) =>
+              parse(fs.readFileSync(file, "utf8")).data.status !== "deprecated",
+          )
           .map((file) => {
             const { document, revision } = snapshot(
               root,
