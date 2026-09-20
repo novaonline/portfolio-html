@@ -21,6 +21,21 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
     spec:
+      # Disposable static preview: safe to interrupt on the ephemeral worker.
+      tolerations:
+        - key: workload
+          operator: Equal
+          value: ephemeral
+          effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: [hp-envy]
       hostNetwork: false
       dnsPolicy: ClusterFirst
       automountServiceAccountToken: false
