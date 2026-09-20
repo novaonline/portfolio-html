@@ -31,6 +31,26 @@ try {
   assert.ok(!service.spec.externalTrafficPolicy);
   const deployment = resource("Deployment");
   assert.equal(deployment.spec.template.spec.hostNetwork, false);
+  assert.ok(
+    deployment.spec.template.spec.tolerations.some(
+      (t) =>
+        t.key === "workload" &&
+        t.operator === "Equal" &&
+        t.value === "ephemeral" &&
+        t.effect === "NoSchedule",
+    ),
+  );
+  assert.equal(
+    deployment.spec.template.spec.affinity.nodeAffinity
+      .preferredDuringSchedulingIgnoredDuringExecution[0].preference
+      .matchExpressions[0].values[0],
+    "hp-envy",
+  );
+  assert.ok(
+    deployment.spec.template.spec.volumes.every(
+      (v) => !v.hostPath && !v.persistentVolumeClaim,
+    ),
+  );
   assert.equal(
     deployment.spec.template.spec.containers[0].ports[0].containerPort,
     8080,
