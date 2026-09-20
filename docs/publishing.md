@@ -73,3 +73,7 @@ gcloud auth login
 ```
 
 After signing in, run the documented Google bootstrap and save the allocated project ID, provider and service account in private `publishing.json`. The dedicated Firebase project and repository-scoped OIDC publisher are now configured in private `publishing.json`. The initial permission error while creating the new workload identity pool cleared on an idempotent retry. Setup does not publish content: prepare an identified release and verify its private preview before promotion.
+
+## Ephemeral preview placement
+
+Portfolio previews are disposable static servers: their authoritative content is retained outside the pod, and only temporary scratch data is written locally. They tolerate `workload=ephemeral:NoSchedule` and prefer `hp-envy`, matching the homelab pattern for interruption-tolerant services. The node is a thermal-risk worker, so previews do not depend on its local storage for durability. Preferred affinity allows fallback when another eligible node has capacity. The public site remains on Firebase Hosting.
