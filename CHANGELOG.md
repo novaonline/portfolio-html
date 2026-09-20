@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Prefer hp-envy for disposable private previews using the existing ephemeral-workload toleration; retain durable release artifacts outside the pod.
+
 - Hide Concepts from the primary navigation for the first article release.
 
 - Rename the front-gate experience to “Heavy Reads Belong at the Front Gate”.
