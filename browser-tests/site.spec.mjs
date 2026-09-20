@@ -15,7 +15,7 @@ test("navigation fits, tag filters work, and theme persists", async ({
     page
       .getByRole("navigation")
       .getByRole("link", { name: "Concepts", exact: true }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -43,29 +43,27 @@ test("navigation fits, tag filters work, and theme persists", async ({
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/);
-  await page
-    .getByRole("navigation")
-    .getByRole("link", { name: "Concepts" })
-    .click();
   await expect(
-    page.getByRole("heading", { name: "Concepts", exact: true }),
+    page
+      .getByRole("navigation")
+      .getByRole("link", { name: "Experiences", exact: true }),
   ).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test("article footnotes are keyboard accessible and have return links", async ({
+test("published article footnotes are keyboard accessible and have return links", async ({
   page,
 }) => {
-  await page.goto(
-    "/experiences/2026-03-29-ai-clients-need-context-signals-and-choice/",
-  );
+  await page.goto("/experiences/2026-02-05-read-heavy-front-gate/");
   const note = page.locator("a[data-footnote-ref]").first();
   await expect(note).toBeVisible();
   await note.focus();
   await page.keyboard.press("Enter");
   const target = await note.getAttribute("href");
   expect(page.url()).toContain(target);
-  await expect(page.locator(target)).toContainText("The apps or interfaces");
+  await expect(page.locator(target)).toContainText(
+    "metered readings and events",
+  );
   await expect(
     page.locator(target).locator("a[data-footnote-backref]"),
   ).toBeVisible();
