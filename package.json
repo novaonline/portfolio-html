@@ -24,7 +24,7 @@
     "@astrojs/check": "^0.9.5",
     "@astrojs/mdx": "^4.3.9",
     "@astrojs/rss": "^4.0.13",
-    "@astrojs/sitemap": "^3.6.0",
+    "@astrojs/sitemap": "^3.7.4",
     "@astrojs/tailwind": "^6.0.2",
     "@playwright/test": "^1.63.0",
     "autoprefixer": "^10.4.21",
