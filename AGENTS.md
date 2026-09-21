@@ -83,6 +83,8 @@ Read, at minimum:
 - Update CHANGELOG for Astro/content/config changes. Update documentation and both repository instruction files when commands or boundaries change.
 - Do not remove metadata from exported files by hand to bypass validation; fix the private source and create a reviewed export.
 
-- For article visuals, consult the private `records/visual-profile/living-systems-article-1.0.0.md`: retain paragraph/visual cells and inline shapes, use concise labels and local controls, and offer Pause for the visible continuous heartbeat. Keep static reduced-motion explanations.
+- For article visuals, consult the private `records/visual-profile/living-systems-article-1.1.0.md`: retain paragraph/visual cells and inline shapes, use concise labels and local controls, and offer Pause for the visible continuous heartbeat. Keep static reduced-motion explanations.
 
 - Visual convention: client on the left, backend on the right. Place initiating controls with the client; requests move toward the backend and responses return to the client. See private `records/visual-profile/client-left-backend-right.md`.
+
+- Choose one architectural overview or paragraph-local breakdowns. Reuse component symbols in prose and diagrams. Evaluate what an engineer or architect learns; motion alone is insufficient. Show a meaningful relationship, consequence or tradeoff, using static structure when that is enough.

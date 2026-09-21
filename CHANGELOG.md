@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Give the greenfield Async Worker and Analytics bounded batches, visible member IDs, queue depth, processing progress and completed-batch counts. Clarify Analytics pause as finishing the current batch before stopping new batches; distinguish it from pausing the scene.
+
+- Adapt the homepage green-field diagram to the Living Systems profile as one overview, with matching component identities in prose. Holding Analytics now demonstrates independent product/business progress and stale observations; release catches up on the same item IDs. Preserve static routes, reduced motion and local controls. Document the general overview/breakdown placement and explanatory-value rules.
+
 - Prefer hp-envy for disposable private previews using the existing ephemeral-workload toleration; retain durable release artifacts outside the pod.
 
 - Hide Concepts from the primary navigation for the first article release.

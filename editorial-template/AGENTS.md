@@ -15,3 +15,5 @@ This repository contains private sources, canonical articles, concepts, writing 
 - Actions builds and commits immutable images/Helm values; Argo CD deploys them. Use the existing shared F5 NGINX Ingress, external-dns and certificate issuer with ClusterIP backends. Do not introduce dedicated portfolio LoadBalancers or host networking. Validate the configured HTTPS hostname and preserve private access as documented in the website's publishing guide.
 - Review releases by ID and package checksum. Promote/rollback retained bytes without rebuilding. Record outcomes truthfully and resume incomplete operations before starting another.
 - The website's `npm run verify` works without AI. Commit editorial changes before building releases.
+
+- Choose one architectural overview or paragraph-local breakdowns. Reuse component symbols in prose and diagrams. Evaluate what an engineer or architect learns; motion alone is insufficient. Show a meaningful relationship, consequence or tradeoff, using static structure when that is enough.

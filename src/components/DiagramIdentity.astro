@@ -1,0 +1,35 @@
+---
+interface Props {
+  symbol: string;
+  family?: "blue" | "violet" | "teal" | "gold";
+}
+const { symbol, family = "blue" } = Astro.props;
+---
+
+<span class={`diagram-identity identity-${family}`} aria-hidden="true"
+  >{symbol}</span
+>
+<style is:global>
+  .diagram-identity {
+    display: inline-grid;
+    place-items: center;
+    width: 1.65em;
+    height: 1.55em;
+    border-radius: 0.3em;
+    background: #3478ed;
+    color: white;
+    font-size: 0.8em;
+    font-weight: 650;
+    line-height: 1;
+    vertical-align: 0.06em;
+  }
+  .identity-violet {
+    background: #8860de;
+  }
+  .identity-teal {
+    background: #087e6b;
+  }
+  .identity-gold {
+    background: #946513;
+  }
+</style>

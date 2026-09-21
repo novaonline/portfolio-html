@@ -1,0 +1,206 @@
+---
+import "../styles/greenfield.css";
+import DiagramIdentity from "./DiagramIdentity.astro";
+const nodes = [
+  {
+    id: "web",
+    name: "Web app",
+    symbol: "W",
+    family: "blue",
+    role: "Client",
+    x: 15,
+    y: 0,
+    state: "Response returns here",
+  },
+  {
+    id: "api",
+    name: "HTTP API",
+    symbol: "H",
+    family: "violet",
+    role: "OpenAPI contract",
+    x: 50,
+    y: 0,
+    state: "Public entry point",
+  },
+  {
+    id: "product",
+    name: "Product",
+    symbol: "P",
+    family: "blue",
+    role: "Service · own DB",
+    x: 85,
+    y: 0,
+    state: "Owns the write",
+  },
+  {
+    id: "identity",
+    name: "Identity",
+    symbol: "I",
+    family: "violet",
+    role: "Authentication",
+    x: 15,
+    y: 230,
+    state: "Session established",
+  },
+  {
+    id: "stream",
+    name: "Event stream",
+    symbol: "E",
+    family: "violet",
+    role: "Governed contracts",
+    x: 85,
+    y: 230,
+    state: "Publishes product events",
+  },
+  {
+    id: "worker",
+    name: "Async worker",
+    symbol: "K",
+    family: "blue",
+    role: "Product work",
+    x: 15,
+    y: 465,
+    state: "Independent work",
+  },
+  {
+    id: "analytics",
+    name: "Analytics",
+    symbol: "A",
+    family: "teal",
+    role: "Observations",
+    x: 50,
+    y: 465,
+    state: "Can lag behind",
+  },
+  {
+    id: "business",
+    name: "Business",
+    symbol: "B",
+    family: "gold",
+    role: "Integration · 3rd-party APIs",
+    x: 85,
+    y: 465,
+    state: "Independent work",
+  },
+] as const;
+---
+
+<figure
+  class="greenfield gf-cell"
+  data-greenfield
+  aria-labelledby="gf-title"
+  aria-describedby="gf-explanation"
+>
+  <header class="gf-heading">
+    <h3 id="gf-title">Product success doesn’t wait for every consumer</h3><div
+      class="gf-toolbar"
+      hidden
+    >
+      <button data-pause aria-pressed="false">Pause scene</button><button
+        data-reset>Reset</button
+      >
+    </div>
+  </header>
+  <div class="gf-scene">
+    <svg
+      class="gf-routes"
+      viewBox="0 0 600 860"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <defs
+        ><marker
+          id="gf-arrow"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="5"
+          markerHeight="5"
+          orient="auto-start-reverse"
+          ><path
+            d="M1 1 9 5 1 9"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"></path></marker
+        ></defs
+      >
+      <path data-edge="web-api" d="M174 52H216"></path>
+      <path data-edge="api-product" d="M384 52H426"></path>
+      <path data-edge="product-api" d="M426 68H384"></path>
+      <path data-edge="api-web" d="M216 68H174"></path>
+      <path data-edge="product-stream" d="M510 150V230"></path>
+      <path data-edge="stream-worker" d="M510 380V405H90V465"></path>
+      <path data-edge="stream-analytics" d="M510 380V420H300V465"></path>
+      <path data-edge="stream-business" d="M510 380V465"></path>
+      <path
+        class="gf-relationship"
+        data-edge="identity-web"
+        d="M174 290H190V95H174"></path>
+    </svg>
+    {
+      nodes.map((node) => (
+        <div
+          class={`gf-slot gf-${node.family}`}
+          style={`--x:${node.x}%;--y:${node.y}px`}
+        >
+          <div class="gf-node" data-node={node.id}>
+            <>
+              <div class="gf-body" />
+              <div class="gf-halo" />
+            </>
+            <span class="gf-icon">
+              <>
+                <DiagramIdentity symbol={node.symbol} family={node.family} />
+                <i class="gf-beat" aria-hidden="true" />
+              </>
+            </span>
+            <>
+              <strong>{node.name}</strong>
+              <small>{node.role}</small>
+            </>
+            <span class="gf-node-state" data-node-state>
+              {node.state}
+            </span>
+            {["worker", "analytics", "business"].includes(node.id) && (
+              <progress
+                max="1"
+                value="0"
+                aria-label={`${node.name} processing progress`}
+                hidden
+              />
+            )}
+          </div>
+          {["worker", "analytics"].includes(node.id) && (
+            <div class="gf-batch" data-batch={node.id}>
+              <span data-queue>Queued events</span>
+              <strong data-batch-state>Collect → process</strong>
+              <span data-batch-items>Up to 3 items / batch</span>
+              <small data-batch-done>Partial batch after 2 s</small>
+            </div>
+          )}
+          {node.id === "web" && (
+            <div class="gf-local" hidden>
+              <button data-create>Create item</button>
+            </div>
+          )}
+          {node.id === "analytics" && (
+            <div class="gf-local" hidden>
+              <button data-hold aria-pressed="false">
+                Pause after batch
+              </button>
+            </div>
+          )}
+        </div>
+      ))
+    }
+    <span class="gf-route-label">ItemCreated</span>
+  </div>
+  <p class="gf-status" data-status role="status" aria-live="polite">
+    Product saves an item and responds to the client. Its event reaches
+    independent consumers. Pausing Analytics between batches leaves its
+    observations stale while the other branches continue.
+  </p>
+</figure>
+<script>
+  import "../scripts/greenfield";
+</script>
