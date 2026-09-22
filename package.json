@@ -27,7 +27,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "@astrojs/tailwind": "^6.0.2",
     "@playwright/test": "^1.63.0",
-    "autoprefixer": "^10.4.21",
+    "autoprefixer": "^10.6.1",
     "firebase-tools": "^15.29.0",
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
